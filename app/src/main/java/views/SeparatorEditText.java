@@ -18,7 +18,8 @@ import example.xw.separatoredittext.R;
  * 可按自己想要的格式自动分割显示的EditText
  * 默认手机格式：xxx xxxx xxxx
  * 也可自定义任意格式，如信用卡格式：xxxx-xxxx-xxxx-xxxx 或 xxxx xxxx xxxx xxxx
- * Created by XW on 2015/9/4.
+ * 使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
+ * Created by woxingxiao on 2015/9/4.
  */
 public class SeparatorEditText extends EditText {
 
@@ -34,7 +35,9 @@ public class SeparatorEditText extends EditText {
     private int[] pattern; // 模板
     private int[] intervals; // 根据模板控制分隔符的插入位置
     private String separator = SPACE; // 默认使用空格分割
-    private int maxLength; // 根据模板自动计算最大输入长度，超出输入无效。切勿在xml中设置maxLength属性
+    // 根据模板自动计算最大输入长度，超出输入无效。使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
+    private int maxLength;
+    private boolean isNoSeparator; // 设置为true时功能同EditText
 
     public SeparatorEditText(Context context) {
         super(context);
@@ -166,6 +169,7 @@ public class SeparatorEditText extends EditText {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             currLength = s.length();
+            if (isNoSeparator) maxLength = currLength;
 
             initClearMark();
 
@@ -222,6 +226,15 @@ public class SeparatorEditText extends EditText {
 
     public void setOnTextChangeListener(OnTextChangeListener listener) {
         this.listener = listener;
+    }
+
+    public boolean isNoSeparator() {
+        return isNoSeparator;
+    }
+
+    public void setNoSeparator(boolean isNoSeparator) {
+        this.isNoSeparator = isNoSeparator;
+        if (isNoSeparator) separator = "";
     }
 
     public interface OnTextChangeListener {
