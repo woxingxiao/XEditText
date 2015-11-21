@@ -25,7 +25,7 @@ public class SeparatorEditText extends EditText {
     private static final int[] DEFAULT_PATTERN = new int[]{3, 4, 4};
 
     private OnTextChangeListener mTextChangeListener;
-    private OnRightOptionClickListener mRightOptionClickListener;
+    private OnMarkerClickListener mMarkerClickListener;
     private TextWatcher mTextWatcher;
     private int preLength;
     private int currLength;
@@ -37,7 +37,8 @@ public class SeparatorEditText extends EditText {
     // 根据模板自动计算最大输入长度，超出输入无效。使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
     private int maxLength;
     private boolean hasNoSeparator; // 设置为true时功能同EditText
-    private boolean isCustomizeRightOption; // 自定义右侧点击选项
+    private boolean isCustomizeMarker; // 自定义右侧点击选项
+    private ShowMarker mShowMarker = ShowMarker.AFTER_INPUT; // 自定义选项后选项显示的时间，默认输入后显示
 
     public SeparatorEditText(Context context) {
         super(context);
@@ -90,9 +91,9 @@ public class SeparatorEditText extends EditText {
                     event.getX() <= (getWidth() - getPaddingRight());
             boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + height);
             if (isAreaX && isAreaY) {
-                if (isCustomizeRightOption) {
-                    if (mRightOptionClickListener != null)
-                        mRightOptionClickListener.onRightOptionClick(event.getRawX(), event.getRawY());
+                if (isCustomizeMarker) {
+                    if (mMarkerClickListener != null)
+                        mMarkerClickListener.onMarkerClick(event.getRawX(), event.getRawY());
                 } else {
                     setError(null);
                     setText("");
@@ -162,12 +163,16 @@ public class SeparatorEditText extends EditText {
         return getText().toString().replaceAll(separator, "");
     }
 
-    public boolean isCustomizeRightOption() {
-        return isCustomizeRightOption;
+    public boolean isCustomizeMarker() {
+        return isCustomizeMarker;
     }
 
-    public void setCustomizeRightOption(boolean isCustomizeRightOption) {
-        this.isCustomizeRightOption = isCustomizeRightOption;
+    public void setCustomizeMarker(boolean isCustomizeRightOption) {
+        this.isCustomizeMarker = isCustomizeRightOption;
+    }
+
+    public void setShowMarker(ShowMarker showMarker) {
+        mShowMarker = showMarker;
     }
 
     // =========================== MyTextWatcher ================================
@@ -228,21 +233,35 @@ public class SeparatorEditText extends EditText {
     }
 
     private void initClearMark() {
-        if (!hasFocused || currLength == 0) {
+        if (!hasFocused) {
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
-        } else {
-            setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
-                    clearDrawable, getCompoundDrawables()[3]);
+            return;
         }
+        Drawable drawable = null;
+        switch (mShowMarker) {
+            case ALWAYS:
+                drawable = clearDrawable;
+                break;
+            case BEFORE_INPUT:
+                if (currLength == 0) drawable = clearDrawable;
+
+                break;
+            case AFTER_INPUT:
+                if (currLength > 0) drawable = clearDrawable;
+
+                break;
+        }
+        setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
+                drawable, getCompoundDrawables()[3]);
     }
 
     public void setOnTextChangeListener(OnTextChangeListener listener) {
         this.mTextChangeListener = listener;
     }
 
-    public void setOnRightOptionClickListener(OnRightOptionClickListener rightOptionClickListener) {
-        mRightOptionClickListener = rightOptionClickListener;
+    public void setOnMarkerClickListener(OnMarkerClickListener markerClickListener) {
+        mMarkerClickListener = markerClickListener;
     }
 
     public boolean isHasNoSeparator() {
@@ -263,13 +282,19 @@ public class SeparatorEditText extends EditText {
         void afterTextChanged(Editable s);
     }
 
-    public interface OnRightOptionClickListener {
+    public interface OnMarkerClickListener {
 
         /**
          * @param x 被点击点相对于屏幕的x坐标
          * @param y 被点击点相对于屏幕的y坐标
          */
-        void onRightOptionClick(float x, float y);
+        void onMarkerClick(float x, float y);
+    }
+
+    public enum ShowMarker {
+        BEFORE_INPUT,
+        AFTER_INPUT,
+        ALWAYS
     }
 
 }

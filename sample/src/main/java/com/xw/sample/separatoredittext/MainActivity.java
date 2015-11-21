@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.xw.repo.separatoredittext.SeparatorEditText;
 
 public class MainActivity extends AppCompatActivity {
