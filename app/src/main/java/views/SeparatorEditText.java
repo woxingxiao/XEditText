@@ -26,7 +26,8 @@ public class SeparatorEditText extends EditText {
     private static final String SPACE = " ";
     private static final int[] DEFAULT_PATTERN = new int[]{3, 4, 4};
 
-    private OnTextChangeListener listener;
+    private OnTextChangeListener mTextChangeListener;
+    private OnRightOptionClickListener mRightOptionClickListener;
     private TextWatcher mTextWatcher;
     private int preLength;
     private int currLength;
@@ -37,7 +38,8 @@ public class SeparatorEditText extends EditText {
     private String separator = SPACE; // 默认使用空格分割
     // 根据模板自动计算最大输入长度，超出输入无效。使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
     private int maxLength;
-    private boolean isNoSeparator; // 设置为true时功能同EditText
+    private boolean hasNoSeparator; // 设置为true时功能同EditText
+    private boolean isCustomizeRightOption; // 自定义右侧点击选项
 
     public SeparatorEditText(Context context) {
         super(context);
@@ -85,13 +87,18 @@ public class SeparatorEditText extends EditText {
         if (hasFocused && clearDrawable != null && event.getAction() == MotionEvent.ACTION_UP) {
             Rect rect = clearDrawable.getBounds();
             int height = rect.height();
-            int distance = (getHeight() - height) / 2;
-            boolean isAreaX = event.getX() > (getWidth() - getTotalPaddingRight()) &&
-                    event.getX() < (getWidth() - getPaddingRight());
-            boolean isAreaY = event.getY() > distance && event.getY() < (distance + height);
+            int rectTopY = (getHeight() - height) / 2;
+            boolean isAreaX = event.getX() >= (getWidth() - getTotalPaddingRight()) &&
+                    event.getX() <= (getWidth() - getPaddingRight());
+            boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + height);
             if (isAreaX && isAreaY) {
-                setError(null);
-                setText("");
+                if (isCustomizeRightOption) {
+                    if (mRightOptionClickListener != null)
+                        mRightOptionClickListener.onRightOptionClick(event.getRawX(), event.getRawY());
+                } else {
+                    setError(null);
+                    setText("");
+                }
             }
         }
         return super.onTouchEvent(event);
@@ -157,19 +164,27 @@ public class SeparatorEditText extends EditText {
         return getText().toString().replaceAll(separator, "");
     }
 
+    public boolean isCustomizeRightOption() {
+        return isCustomizeRightOption;
+    }
+
+    public void setCustomizeRightOption(boolean isCustomizeRightOption) {
+        this.isCustomizeRightOption = isCustomizeRightOption;
+    }
+
     // =========================== MyTextWatcher ================================
     private class MyTextWatcher implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             preLength = s.length();
-            if (listener != null)
-                listener.beforeTextChanged(s, start, count, after);
+            if (mTextChangeListener != null)
+                mTextChangeListener.beforeTextChanged(s, start, count, after);
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             currLength = s.length();
-            if (isNoSeparator) maxLength = currLength;
+            if (hasNoSeparator) maxLength = currLength;
 
             initClearMark();
 
@@ -201,16 +216,16 @@ public class SeparatorEditText extends EditText {
                 }
             }
 
-            if (listener != null)
-                listener.onTextChanged(s, start, before, count);
+            if (mTextChangeListener != null)
+                mTextChangeListener.onTextChanged(s, start, before, count);
         }
 
 
         @Override
         public void afterTextChanged(Editable s) {
 
-            if (listener != null)
-                listener.afterTextChanged(s);
+            if (mTextChangeListener != null)
+                mTextChangeListener.afterTextChanged(s);
         }
     }
 
@@ -225,15 +240,19 @@ public class SeparatorEditText extends EditText {
     }
 
     public void setOnTextChangeListener(OnTextChangeListener listener) {
-        this.listener = listener;
+        this.mTextChangeListener = listener;
     }
 
-    public boolean isNoSeparator() {
-        return isNoSeparator;
+    public void setOnRightOptionClickListener(OnRightOptionClickListener rightOptionClickListener) {
+        mRightOptionClickListener = rightOptionClickListener;
     }
 
-    public void setNoSeparator(boolean isNoSeparator) {
-        this.isNoSeparator = isNoSeparator;
+    public boolean isHasNoSeparator() {
+        return hasNoSeparator;
+    }
+
+    public void setHasNoSeparator(boolean isNoSeparator) {
+        this.hasNoSeparator = isNoSeparator;
         if (isNoSeparator) separator = "";
     }
 
@@ -244,6 +263,15 @@ public class SeparatorEditText extends EditText {
         void onTextChanged(CharSequence s, int start, int before, int count);
 
         void afterTextChanged(Editable s);
+    }
+
+    public interface OnRightOptionClickListener {
+
+        /**
+         * @param x 被点击点相对于屏幕的x坐标
+         * @param y 被点击点相对于屏幕的y坐标
+         */
+        void onRightOptionClick(float x, float y);
     }
 
 }
