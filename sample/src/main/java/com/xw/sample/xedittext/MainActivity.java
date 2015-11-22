@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     private XEditText defaultSeparatorEdit;
     private XEditText customSeparatorEdit;
     private XEditText showSeparatorEdit;
-    private XEditText customMarkerEdit;
+    private XEditText customMarkerEdit1;
     private XEditText iOSStyleEditText;
     private TextView textView1, textView2;
     private Button button;
@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         defaultSeparatorEdit = (XEditText) findViewById(R.id.default_edit_text);
         customSeparatorEdit = (XEditText) findViewById(R.id.custom_edit_text);
         showSeparatorEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
-        customMarkerEdit = (XEditText) findViewById(R.id.custom_marker_edit_text);
+        customMarkerEdit1 = (XEditText) findViewById(R.id.custom_marker_edit_text1);
         iOSStyleEditText = (XEditText) findViewById(R.id.ios_style_edit_text);
         textView1 = (TextView) findViewById(R.id.text1);
         textView2 = (TextView) findViewById(R.id.text2);
@@ -75,10 +75,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        customMarkerEdit.setOnMarkerClickListener(new XEditText.OnMarkerClickListener() {
+        customMarkerEdit1.setCustomizeMarkerEnable(true);
+        customMarkerEdit1.setOnMarkerClickListener(new XEditText.OnMarkerClickListener() {
             @Override
             public void onMarkerClick(float x, float y) {
-                new MarkerPopWindow(MainActivity.this, customMarkerEdit, (int) x, (int) y);
+                new MarkerPopWindow(MainActivity.this, customMarkerEdit1, (int) x, (int) y);
             }
         });
     }
