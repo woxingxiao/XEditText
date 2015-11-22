@@ -5,4 +5,8 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="Anim" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/enter_right_to_left</item>
+        <item name="android:windowExitAnimation">@anim/out_left_to_right</item>
+    </style>
 </resources>

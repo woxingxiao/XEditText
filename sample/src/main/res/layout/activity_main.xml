@@ -1,5 +1,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <com.xw.repo.separatoredittext.SeparatorEditText
+    <com.xw.repo.xedittext.XEditText
         android:id="@+id/default_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,10 +26,10 @@
         android:layout_marginLeft="5dp"
         android:textColor="#1976d2"/>
 
-    <com.xw.repo.separatoredittext.SeparatorEditText
+    <com.xw.repo.xedittext.XEditText
         android:id="@+id/custom_edit_text"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:hint="自定义分割格式"
         android:inputType="number"/>
     <!-- 如果inputType="number" 的话是没法插入非数字字符的，
@@ -47,18 +48,28 @@
         android:layout_height="wrap_content"
         android:text="分割13800000000"/>
 
-    <com.xw.repo.separatoredittext.SeparatorEditText
+    <com.xw.repo.xedittext.XEditText
         android:id="@+id/show_separator_edit_text"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:hint="自动显示为分割格式"/>
 
-    <com.xw.repo.separatoredittext.SeparatorEditText
-        android:id="@+id/like_ios_edit_text"
+    <com.xw.repo.xedittext.XEditText
+        android:id="@+id/custom_marker_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:drawableRight="@drawable/icon_tips"
+        android:gravity="center_vertical"
+        app:x_customizeMarkerEnable="true"
+        app:x_showMarkerTime="always"/>
+
+    <com.xw.repo.xedittext.XEditText
+        android:id="@+id/ios_style_edit_text"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@drawable/shape_corner_gray_bg"
         android:drawableLeft="@drawable/icon_search"
-        android:hint="搜索"/>
+        android:hint="搜索"
+        app:x_iOSStyleEnable="true"/>
 
 </LinearLayout>

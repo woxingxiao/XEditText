@@ -1,6 +1,7 @@
-package com.xw.repo.separatoredittext;
+package com.xw.repo.xedittext;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -23,7 +24,7 @@ import android.widget.EditText;
  * 使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
  * Created by woxingxiao on 2015/9/4.
  */
-public class SeparatorEditText extends EditText {
+public class XEditText extends EditText {
 
     private static final String SPACE = " ";
     private static final int[] DEFAULT_PATTERN = new int[]{3, 4, 4};
@@ -38,33 +39,51 @@ public class SeparatorEditText extends EditText {
     private boolean hasFocused;
     private int[] pattern; // 模板
     private int[] intervals; // 根据模板控制分隔符的插入位置
-    private String separator = SPACE; // 默认使用空格分割
+    private String separator; //分割符，默认使用空格分割
     // 根据模板自动计算最大输入长度，超出输入无效。使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
     private int maxLength;
     private boolean hasNoSeparator; // 设置为true时功能同EditText
-    private boolean isCustomizeMarker; // 自定义右侧Marker点击选项
-    private ShowMarkerTime mShowMarkerTime = ShowMarkerTime.AFTER_INPUT; // 自定义选项后选项显示的时间，默认输入后显示
+    private boolean customizeMarkerEnable; // 自定义右侧Marker点击选项使能
+    private ShowMarkerTime mShowMarkerTime; // 自定义选项后选项显示的时间，默认输入后显示
     private Paint mTextPaint;
     private Rect mRect;
     private Rect mTextRect;
     private Bitmap mBitmap;
     private Paint mBitPaint;
-    private boolean iOSEnable; // 仿iOS模式
-    private boolean cleariOSElement; // 是否清除iOS元素
+    private boolean iOSStyleEnable; // 仿iOS风格
+    private boolean cleariOSStyle; // 是否清除iOS风格
     private CharSequence mHintCharSeq;
 
-    public SeparatorEditText(Context context) {
-        super(context);
-        init();
+    public XEditText(Context context) {
+        this(context, null);
     }
 
-    public SeparatorEditText(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+    public XEditText(Context context, AttributeSet attrs) {
+        this(context, attrs, android.R.attr.editTextStyle); // Attention !
     }
 
-    public SeparatorEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public XEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.XEditText, defStyleAttr, 0);
+
+        separator = a.getString(R.styleable.XEditText_x_separator);
+        if (separator == null) separator = SPACE;
+        customizeMarkerEnable = a.getBoolean(R.styleable.XEditText_x_customizeMarkerEnable, false);
+        int which = a.getInt(R.styleable.XEditText_x_showMarkerTime, 0);
+        switch (which) {
+            case 0:
+                mShowMarkerTime = ShowMarkerTime.AFTER_INPUT;
+                break;
+            case 1:
+                mShowMarkerTime = ShowMarkerTime.BEFORE_INPUT;
+                break;
+            case 2:
+                mShowMarkerTime = ShowMarkerTime.ALWAYS;
+                break;
+        }
+        iOSStyleEnable = a.getBoolean(R.styleable.XEditText_x_iOSStyleEnable, false);
+        a.recycle();
+
         init();
     }
 
@@ -77,10 +96,15 @@ public class SeparatorEditText extends EditText {
         mTextWatcher = new MyTextWatcher();
         this.addTextChangedListener(mTextWatcher);
         mRightMarkerDrawable = getCompoundDrawables()[2];
-        if (mRightMarkerDrawable == null) // 如未设置则采用默认
+        if (customizeMarkerEnable && mRightMarkerDrawable != null) { // 如果自定义Marker，暂时不显示rightDrawable
+            setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
+                    null, getCompoundDrawables()[3]);
+        }
+        if (mRightMarkerDrawable == null) { // 如未设置则采用默认
             mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_clear);
-        if (mRightMarkerDrawable != null)
-            mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(), mRightMarkerDrawable.getIntrinsicHeight());
+            if (mRightMarkerDrawable != null)
+                mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(), mRightMarkerDrawable.getIntrinsicHeight());
+        }
 
         setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
@@ -91,12 +115,12 @@ public class SeparatorEditText extends EditText {
             }
         });
 
-        if (iOSEnable)
-            initIosObjects();
+        if (iOSStyleEnable)
+            initiOSObjects();
 
     }
 
-    private void initIosObjects() {
+    private void initiOSObjects() {
         mLeftDrawable = getCompoundDrawables()[0];
         if (mLeftDrawable != null) {
             if (mBitmap == null || mBitPaint == null) {
@@ -123,15 +147,15 @@ public class SeparatorEditText extends EditText {
                 mTextPaint.getTextBounds(mHintCharSeq.toString(), 0, mHintCharSeq.length(), mTextRect);
             }
         }
-        cleariOSElement = false;
+        cleariOSStyle = false;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (iOSEnable) {
-            if (cleariOSElement) return;
+        if (iOSStyleEnable) {
+            if (cleariOSStyle) return;
 
             if (mHintCharSeq != null) {
                 Paint.FontMetricsInt fontMetrics = mTextPaint.getFontMetricsInt();
@@ -159,7 +183,7 @@ public class SeparatorEditText extends EditText {
                     event.getX() <= (getWidth() - getPaddingRight());
             boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + height);
             if (isAreaX && isAreaY) {
-                if (isCustomizeMarker) {
+                if (customizeMarkerEnable) {
                     if (mMarkerClickListener != null)
                         mMarkerClickListener.onMarkerClick(event.getRawX(), event.getRawY());
                 } else {
@@ -231,15 +255,15 @@ public class SeparatorEditText extends EditText {
         return getText().toString().replaceAll(separator, "");
     }
 
-    public boolean isCustomizeMarker() {
-        return isCustomizeMarker;
-    }
-
     /**
      * 是否自定义Marker
      */
-    public void setCustomizeMarker(boolean isCustomizeMarker) {
-        this.isCustomizeMarker = isCustomizeMarker;
+    public void setCustomizeMarkerEnable(boolean customizeMarkerEnable) {
+        this.customizeMarkerEnable = customizeMarkerEnable;
+        if (customizeMarkerEnable && mRightMarkerDrawable != null) { // 如果自定义Marker，暂时不显示rightDrawable
+            setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
+                    null, getCompoundDrawables()[3]);
+        }
     }
 
     /**
@@ -267,11 +291,11 @@ public class SeparatorEditText extends EditText {
     }
 
     /**
-     * @param iOSEnable true:开启仿iOS编辑框模式
+     * @param iOSStyleEnable true:开启仿iOS风格编辑框模式
      */
-    public void setiOSEnable(boolean iOSEnable) {
-        this.iOSEnable = iOSEnable;
-        initIosObjects();
+    public void setiOSStyleEnable(boolean iOSStyleEnable) {
+        this.iOSStyleEnable = iOSStyleEnable;
+        initiOSObjects();
         invalidate();
     }
 
@@ -371,18 +395,18 @@ public class SeparatorEditText extends EditText {
     }
 
     private void iOSFocusChangeLogic() {
-        if (!iOSEnable) return;
+        if (!iOSStyleEnable) return;
         if (hasFocused) {
             if (mLeftDrawable != null)
                 setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
                         getCompoundDrawables()[2], getCompoundDrawables()[3]);
             if (mHintCharSeq != null)
                 setHint(mHintCharSeq);
-            cleariOSElement = true;
+            cleariOSStyle = true;
             invalidate();
         } else {
             if (currLength == 0) { // 编辑框无内容恢复居中状态
-                initIosObjects();
+                initiOSObjects();
                 invalidate();
             }
         }

@@ -1,4 +1,4 @@
-package com.xw.repo.separatoredittext;
+package com.xw.repo.xedittext;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
