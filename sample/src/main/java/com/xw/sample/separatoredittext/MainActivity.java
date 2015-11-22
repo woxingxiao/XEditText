@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
     private SeparatorEditText defaultSeparatorEdit;
     private SeparatorEditText customSeparatorEdit;
     private SeparatorEditText showSeparatorEdit;
+    private SeparatorEditText likeIosEditText;
     private TextView textView1, textView2;
     private Button button;
 
@@ -25,9 +26,11 @@ public class MainActivity extends AppCompatActivity {
         defaultSeparatorEdit = (SeparatorEditText) findViewById(R.id.default_edit_text);
         customSeparatorEdit = (SeparatorEditText) findViewById(R.id.custom_edit_text);
         showSeparatorEdit = (SeparatorEditText) findViewById(R.id.show_separator_edit_text);
+        likeIosEditText = (SeparatorEditText) findViewById(R.id.like_ios_edit_text);
         textView1 = (TextView) findViewById(R.id.text1);
         textView2 = (TextView) findViewById(R.id.text2);
         button = (Button) findViewById(R.id.show_pattern_btn);
+        likeIosEditText.setiOSEnable(true);
 
         customSeparatorEdit.setPattern(new int[]{4, 4, 4, 4});
         customSeparatorEdit.setSeparator("-");

@@ -1,7 +1,11 @@
 package com.xw.repo.separatoredittext;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.text.Editable;
@@ -29,7 +33,8 @@ public class SeparatorEditText extends EditText {
     private TextWatcher mTextWatcher;
     private int preLength;
     private int currLength;
-    private Drawable clearDrawable;
+    private Drawable mRightMarkerDrawable;
+    private Drawable mLeftDrawable;
     private boolean hasFocused;
     private int[] pattern; // 模板
     private int[] intervals; // 根据模板控制分隔符的插入位置
@@ -37,8 +42,16 @@ public class SeparatorEditText extends EditText {
     // 根据模板自动计算最大输入长度，超出输入无效。使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
     private int maxLength;
     private boolean hasNoSeparator; // 设置为true时功能同EditText
-    private boolean isCustomizeMarker; // 自定义右侧点击选项
-    private ShowMarker mShowMarker = ShowMarker.AFTER_INPUT; // 自定义选项后选项显示的时间，默认输入后显示
+    private boolean isCustomizeMarker; // 自定义右侧Marker点击选项
+    private ShowMarkerTime mShowMarkerTime = ShowMarkerTime.AFTER_INPUT; // 自定义选项后选项显示的时间，默认输入后显示
+    private Paint mTextPaint;
+    private Rect mRect;
+    private Rect mTextRect;
+    private Bitmap mBitmap;
+    private Paint mBitPaint;
+    private boolean iOSEnable; // 仿iOS模式
+    private boolean cleariOSElement; // 是否清除iOS元素
+    private CharSequence mHintCharSeq;
 
     public SeparatorEditText(Context context) {
         super(context);
@@ -63,28 +76,83 @@ public class SeparatorEditText extends EditText {
 
         mTextWatcher = new MyTextWatcher();
         this.addTextChangedListener(mTextWatcher);
-        clearDrawable = getCompoundDrawables()[2];
-        if (clearDrawable == null) // 如未设置则采用默认
-            clearDrawable = getResources().getDrawable(R.drawable.icon_clear);
-        if (clearDrawable != null)
-            clearDrawable.setBounds(0, 0, clearDrawable.getIntrinsicWidth(), clearDrawable.getIntrinsicHeight());
+        mRightMarkerDrawable = getCompoundDrawables()[2];
+        if (mRightMarkerDrawable == null) // 如未设置则采用默认
+            mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_clear);
+        if (mRightMarkerDrawable != null)
+            mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(), mRightMarkerDrawable.getIntrinsicHeight());
 
         setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 hasFocused = hasFocus;
-                initClearMark();
+                markerFocusChangeLogic();
+                iOSFocusChangeLogic();
             }
         });
+
+        if (iOSEnable)
+            initIosObjects();
+
+    }
+
+    private void initIosObjects() {
+        mLeftDrawable = getCompoundDrawables()[0];
+        if (mLeftDrawable != null) {
+            if (mBitmap == null || mBitPaint == null) {
+                BitmapDrawable bd = (BitmapDrawable) mLeftDrawable;
+                mBitmap = bd.getBitmap();
+                mBitPaint = new Paint();
+                mBitPaint.setAntiAlias(true);
+            }
+
+            setCompoundDrawables(null, getCompoundDrawables()[1],
+                    getCompoundDrawables()[2], getCompoundDrawables()[3]);
+        }
+        mHintCharSeq = getHint();
+        if (mHintCharSeq != null) {
+            setHint("");
+            if (mRect == null || mTextRect == null || mTextPaint == null) {
+                mRect = new Rect(getLeft(), getTop(), getWidth(), getHeight());
+                mTextRect = new Rect();
+                mTextPaint = new Paint();
+                mTextPaint.setAntiAlias(true);
+                mTextPaint.setTextSize(getTextSize());
+                mTextPaint.setColor(getCurrentHintTextColor());
+                mTextPaint.setTextAlign(Paint.Align.CENTER);
+                mTextPaint.getTextBounds(mHintCharSeq.toString(), 0, mHintCharSeq.length(), mTextRect);
+            }
+        }
+        cleariOSElement = false;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        if (iOSEnable) {
+            if (cleariOSElement) return;
+
+            if (mHintCharSeq != null) {
+                Paint.FontMetricsInt fontMetrics = mTextPaint.getFontMetricsInt();
+                int textCenterY = (mRect.bottom + mRect.top - fontMetrics.bottom - fontMetrics.top) / 2;
+                canvas.drawText(mHintCharSeq.toString(), canvas.getWidth() / 2, canvas.getHeight() / 2 + textCenterY, mTextPaint);
+            }
+            if (mBitmap != null) {
+                canvas.drawBitmap(mBitmap,
+                        (canvas.getWidth() - mTextRect.width()) / 2 - mBitmap.getWidth() - getCompoundDrawablePadding(),
+                        (canvas.getHeight() - mBitmap.getHeight()) / 2, mBitPaint);
+            }
+        }
     }
 
     /**
-     * 监听右侧清除图标点击事件
+     * 监听右侧Marker图标点击事件
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (hasFocused && clearDrawable != null && event.getAction() == MotionEvent.ACTION_UP) {
-            Rect rect = clearDrawable.getBounds();
+        if (hasFocused && mRightMarkerDrawable != null && event.getAction() == MotionEvent.ACTION_UP) {
+            Rect rect = mRightMarkerDrawable.getBounds();
             int height = rect.height();
             int rectTopY = (getHeight() - height) / 2;
             boolean isAreaX = event.getX() >= (getWidth() - getTotalPaddingRight()) &&
@@ -137,10 +205,10 @@ public class SeparatorEditText extends EditText {
     }
 
     /**
-     * 自定义输入框最右边删除图标
+     * 自定义输入框最右边Marker图标
      */
-    public void setClearDrawable(int resId) {
-        clearDrawable = getResources().getDrawable(resId);
+    public void setRightMarkerDrawable(int resId) {
+        mRightMarkerDrawable = getResources().getDrawable(resId);
     }
 
     /**
@@ -167,12 +235,58 @@ public class SeparatorEditText extends EditText {
         return isCustomizeMarker;
     }
 
-    public void setCustomizeMarker(boolean isCustomizeRightOption) {
-        this.isCustomizeMarker = isCustomizeRightOption;
+    /**
+     * 是否自定义Marker
+     */
+    public void setCustomizeMarker(boolean isCustomizeMarker) {
+        this.isCustomizeMarker = isCustomizeMarker;
     }
 
-    public void setShowMarker(ShowMarker showMarker) {
-        mShowMarker = showMarker;
+    /**
+     * Marker在什么时间显示
+     *
+     * @param showMarkerTime BEFORE_INPUT：没有输入内容时显示；
+     *                       AFTER_INPUT：有输入内容后显示；
+     *                       ALWAYS：（获得焦点后）一直显示
+     */
+    public void setShowMarkerTime(ShowMarkerTime showMarkerTime) {
+        mShowMarkerTime = showMarkerTime;
+    }
+
+
+    public boolean hasNoSeparator() {
+        return hasNoSeparator;
+    }
+
+    /**
+     * @param hasNoSeparator true设置无分隔符模式，功能同EditText
+     */
+    public void setHasNoSeparator(boolean hasNoSeparator) {
+        this.hasNoSeparator = hasNoSeparator;
+        if (hasNoSeparator) separator = "";
+    }
+
+    /**
+     * @param iOSEnable true:开启仿iOS编辑框模式
+     */
+    public void setiOSEnable(boolean iOSEnable) {
+        this.iOSEnable = iOSEnable;
+        initIosObjects();
+        invalidate();
+    }
+
+    /**
+     * 设置OnTextChangeListener，同EditText.addOnTextChangeListener()
+     */
+    public void setOnTextChangeListener(OnTextChangeListener listener) {
+        this.mTextChangeListener = listener;
+    }
+
+    /**
+     * 设置OnMarkerClickListener，Marker被点击的监听
+     */
+    public void setOnMarkerClickListener(OnMarkerClickListener markerClickListener) {
+        mMarkerClickListener = markerClickListener;
     }
 
     // =========================== MyTextWatcher ================================
@@ -189,7 +303,7 @@ public class SeparatorEditText extends EditText {
             currLength = s.length();
             if (hasNoSeparator) maxLength = currLength;
 
-            initClearMark();
+            markerFocusChangeLogic();
 
             if (currLength > maxLength) {
                 getText().delete(currLength - 1, currLength);
@@ -232,23 +346,23 @@ public class SeparatorEditText extends EditText {
         }
     }
 
-    private void initClearMark() {
+    private void markerFocusChangeLogic() {
         if (!hasFocused) {
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
             return;
         }
         Drawable drawable = null;
-        switch (mShowMarker) {
+        switch (mShowMarkerTime) {
             case ALWAYS:
-                drawable = clearDrawable;
+                drawable = mRightMarkerDrawable;
                 break;
             case BEFORE_INPUT:
-                if (currLength == 0) drawable = clearDrawable;
+                if (currLength == 0) drawable = mRightMarkerDrawable;
 
                 break;
             case AFTER_INPUT:
-                if (currLength > 0) drawable = clearDrawable;
+                if (currLength > 0) drawable = mRightMarkerDrawable;
 
                 break;
         }
@@ -256,21 +370,22 @@ public class SeparatorEditText extends EditText {
                 drawable, getCompoundDrawables()[3]);
     }
 
-    public void setOnTextChangeListener(OnTextChangeListener listener) {
-        this.mTextChangeListener = listener;
-    }
-
-    public void setOnMarkerClickListener(OnMarkerClickListener markerClickListener) {
-        mMarkerClickListener = markerClickListener;
-    }
-
-    public boolean isHasNoSeparator() {
-        return hasNoSeparator;
-    }
-
-    public void setHasNoSeparator(boolean isNoSeparator) {
-        this.hasNoSeparator = isNoSeparator;
-        if (isNoSeparator) separator = "";
+    private void iOSFocusChangeLogic() {
+        if (!iOSEnable) return;
+        if (hasFocused) {
+            if (mLeftDrawable != null)
+                setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
+                        getCompoundDrawables()[2], getCompoundDrawables()[3]);
+            if (mHintCharSeq != null)
+                setHint(mHintCharSeq);
+            cleariOSElement = true;
+            invalidate();
+        } else {
+            if (currLength == 0) { // 编辑框无内容恢复居中状态
+                initIosObjects();
+                invalidate();
+            }
+        }
     }
 
     public interface OnTextChangeListener {
@@ -291,7 +406,7 @@ public class SeparatorEditText extends EditText {
         void onMarkerClick(float x, float y);
     }
 
-    public enum ShowMarker {
+    public enum ShowMarkerTime {
         BEFORE_INPUT,
         AFTER_INPUT,
         ALWAYS

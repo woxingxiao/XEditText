@@ -13,7 +13,7 @@
     <com.xw.repo.separatoredittext.SeparatorEditText
         android:id="@+id/default_edit_text"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:hint="默认分割格式"
         android:inputType="phone"/>
     <!--切勿设置maxLength属性-->
@@ -52,5 +52,13 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:hint="自动显示为分割格式"/>
+
+    <com.xw.repo.separatoredittext.SeparatorEditText
+        android:id="@+id/like_ios_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/shape_corner_gray_bg"
+        android:drawableLeft="@drawable/icon_search"
+        android:hint="搜索"/>
 
 </LinearLayout>
