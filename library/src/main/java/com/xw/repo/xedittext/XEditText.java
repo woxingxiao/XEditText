@@ -277,7 +277,9 @@ public class XEditText extends EditText {
         mShowMarkerTime = showMarkerTime;
     }
 
-
+    /**
+     * @return 是否有分割符
+     */
     public boolean hasNoSeparator() {
         return hasNoSeparator;
     }
