@@ -1,6 +1,7 @@
 # XEditText
 
-![image](https://github.com/woxingxiao/XEditText/blob/master/demo.gif)
+![image](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo.gif)
+![image](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo2.gif)
 ***
 ###Attributes
 attr | format | describe
