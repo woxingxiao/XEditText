@@ -15,9 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private XEditText customSeparatorEdit;
     private XEditText showSeparatorEdit;
     private XEditText customMarkerEdit1;
-    private XEditText iOSStyleEditText;
     private TextView textView1, textView2;
-    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +26,9 @@ public class MainActivity extends AppCompatActivity {
         customSeparatorEdit = (XEditText) findViewById(R.id.custom_edit_text);
         showSeparatorEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
         customMarkerEdit1 = (XEditText) findViewById(R.id.custom_marker_edit_text1);
-        iOSStyleEditText = (XEditText) findViewById(R.id.ios_style_edit_text);
         textView1 = (TextView) findViewById(R.id.text1);
         textView2 = (TextView) findViewById(R.id.text2);
-        button = (Button) findViewById(R.id.show_pattern_btn);
+        Button button = (Button) findViewById(R.id.show_pattern_btn);
 
         customSeparatorEdit.setPattern(new int[]{4, 4, 4, 4});
         customSeparatorEdit.setSeparator("-");
