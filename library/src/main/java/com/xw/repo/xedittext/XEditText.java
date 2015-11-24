@@ -50,8 +50,8 @@ public class XEditText extends EditText {
     private Rect mTextRect;
     private Bitmap mBitmap;
     private Paint mBitPaint;
-    private boolean iOSStyleEnable; // 仿iOS风格
-    private boolean cleariOSStyle; // 是否清除iOS风格
+    private boolean iOSStyleEnable; // 仿iOS风格，目前需要结合shape.xml的方式设置外边框
+    private boolean iOSFrameHide;
     private CharSequence mHintCharSeq;
 
     public XEditText(Context context) {
@@ -147,7 +147,7 @@ public class XEditText extends EditText {
                 mTextPaint.getTextBounds(mHintCharSeq.toString(), 0, mHintCharSeq.length(), mTextRect);
             }
         }
-        cleariOSStyle = false;
+        iOSFrameHide = false;
     }
 
     @Override
@@ -155,7 +155,7 @@ public class XEditText extends EditText {
         super.onDraw(canvas);
 
         if (iOSStyleEnable) {
-            if (cleariOSStyle) return;
+            if (iOSFrameHide) return;
 
             if (mHintCharSeq != null) {
                 Paint.FontMetricsInt fontMetrics = mTextPaint.getFontMetricsInt();
@@ -404,7 +404,7 @@ public class XEditText extends EditText {
                         getCompoundDrawables()[2], getCompoundDrawables()[3]);
             if (mHintCharSeq != null)
                 setHint(mHintCharSeq);
-            cleariOSStyle = true;
+            iOSFrameHide = true;
             invalidate();
         } else {
             if (currLength == 0) { // 编辑框无内容恢复居中状态
