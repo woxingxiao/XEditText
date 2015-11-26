@@ -18,10 +18,7 @@ import android.view.View;
 import android.widget.EditText;
 
 /**
- * 可按自己想要的格式自动分割显示的EditText
- * 默认手机格式：xxx xxxx xxxx
- * 也可自定义任意格式，如信用卡格式：xxxx-xxxx-xxxx-xxxx 或 xxxx xxxx xxxx xxxx
- * 使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
+ * XEditText
  * Created by woxingxiao on 2015/9/4.
  */
 public class XEditText extends EditText {
