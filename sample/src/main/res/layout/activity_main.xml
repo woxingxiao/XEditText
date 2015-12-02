@@ -16,7 +16,7 @@
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/default_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="54dp"
             android:hint="默认分割格式"
             android:inputType="phone"/>
         <!--切勿设置maxLength属性-->
@@ -56,14 +56,20 @@
             android:layout_height="wrap_content"
             android:hint="自动显示为分割格式"/>
 
-        <com.xw.repo.xedittext.XEditText
-            android:id="@+id/custom_marker_edit_text1"
+        <LinearLayout
+            android:id="@+id/parent_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:drawableRight="@drawable/icon_tips"
-            android:gravity="center_vertical"
-            android:hint="自定义Marker输入后显示（默认）"/>
+            android:layout_height="wrap_content">
+
+            <com.xw.repo.xedittext.XEditText
+                android:id="@+id/custom_marker_edit_text1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:drawableRight="@drawable/icon_tips"
+                android:gravity="center_vertical"
+                android:hint="自定义Marker输入后显示（默认）"/>
+        </LinearLayout>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/custom_marker_edit_text2"

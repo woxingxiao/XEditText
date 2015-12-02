@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xw.repo.xedittext.XEditText;
@@ -14,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private XEditText defaultSeparatorEdit;
     private XEditText customSeparatorEdit;
     private XEditText showSeparatorEdit;
+    private LinearLayout parentLayout;
     private XEditText customMarkerEdit1;
     private TextView textView1, textView2;
 
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         customSeparatorEdit = (XEditText) findViewById(R.id.custom_edit_text);
         showSeparatorEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
         customMarkerEdit1 = (XEditText) findViewById(R.id.custom_marker_edit_text1);
+        parentLayout = (LinearLayout) findViewById(R.id.parent_layout);
         textView1 = (TextView) findViewById(R.id.text1);
         textView2 = (TextView) findViewById(R.id.text2);
         Button button = (Button) findViewById(R.id.show_pattern_btn);
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         customMarkerEdit1.setOnMarkerClickListener(new XEditText.OnMarkerClickListener() {
             @Override
             public void onMarkerClick(float x, float y) {
-                new MarkerPopWindow(MainActivity.this, customMarkerEdit1, (int) x, (int) y);
+                new MarkerPopWindow(MainActivity.this, parentLayout, (int) x, (int) y);
             }
         });
     }
