@@ -82,7 +82,7 @@ public class XEditText extends EditText {
                 break;
         }
         iOSStyleEnable = a.getBoolean(R.styleable.XEditText_x_iOSStyleEnable, false);
-        disableEmoji = a.getBoolean(R.styleable.XEditText_x_iOSStyleEnable, false);
+        disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
         a.recycle();
 
         init();
@@ -116,14 +116,8 @@ public class XEditText extends EditText {
             }
         });
 
-        if (iOSStyleEnable) {
-            initiOSObjects();
-            setHasNoSeparator(true);
-        }
-        if (disableEmoji) {
-            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
-            setHasNoSeparator(true);
-        }
+        if (iOSStyleEnable) initiOSObjects();
+        if (disableEmoji) setFilters(new InputFilter[]{new EmojiExcludeFilter()});
     }
 
     private void initiOSObjects() {
