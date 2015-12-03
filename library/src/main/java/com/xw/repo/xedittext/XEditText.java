@@ -8,13 +8,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 /**
@@ -50,6 +52,7 @@ public class XEditText extends EditText {
     private boolean iOSStyleEnable; // 仿iOS风格，目前需要结合shape.xml的方式设置外边框
     private boolean iOSFrameHide;
     private CharSequence mHintCharSeq;
+    private boolean disableEmoji;
 
     public XEditText(Context context) {
         this(context, null);
@@ -79,6 +82,7 @@ public class XEditText extends EditText {
                 break;
         }
         iOSStyleEnable = a.getBoolean(R.styleable.XEditText_x_iOSStyleEnable, false);
+        disableEmoji = a.getBoolean(R.styleable.XEditText_x_iOSStyleEnable, false);
         a.recycle();
 
         init();
@@ -96,6 +100,7 @@ public class XEditText extends EditText {
         if (customizeMarkerEnable && mRightMarkerDrawable != null) { // 如果自定义Marker，暂时不显示rightDrawable
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
+            setHasNoSeparator(true);
         }
         if (mRightMarkerDrawable == null) { // 如未设置则采用默认
             mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_clear);
@@ -112,9 +117,14 @@ public class XEditText extends EditText {
             }
         });
 
-        if (iOSStyleEnable)
+        if (iOSStyleEnable) {
             initiOSObjects();
-
+            setHasNoSeparator(true);
+        }
+        if (disableEmoji) {
+            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+            setHasNoSeparator(true);
+        }
     }
 
     private void initiOSObjects() {
@@ -181,8 +191,11 @@ public class XEditText extends EditText {
             boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + height);
             if (isAreaX && isAreaY) {
                 if (customizeMarkerEnable) {
+                    hideInputMethod();
                     if (mMarkerClickListener != null)
                         mMarkerClickListener.onMarkerClick(event.getRawX(), event.getRawY());
+
+                    return true;
                 } else {
                     setError(null);
                     setText("");
@@ -195,7 +208,7 @@ public class XEditText extends EditText {
     /**
      * 自定义分隔符
      */
-    public void setSeparator(@NonNull String separator) {
+    public void setSeparator(String separator) {
         if (separator == null) {
             throw new IllegalArgumentException("separator can't be null !");
         }
@@ -207,7 +220,7 @@ public class XEditText extends EditText {
      *
      * @param pattern 每一段的字符个数的数组
      */
-    public void setPattern(@NonNull int[] pattern) {
+    public void setPattern(int[] pattern) {
         if (pattern == null) {
             throw new IllegalArgumentException("pattern can't be null !");
         }
@@ -260,6 +273,7 @@ public class XEditText extends EditText {
         if (customizeMarkerEnable && mRightMarkerDrawable != null) { // 如果自定义Marker，暂时不显示rightDrawable
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
+            setHasNoSeparator(true);
         }
     }
 
@@ -295,7 +309,21 @@ public class XEditText extends EditText {
     public void setiOSStyleEnable(boolean iOSStyleEnable) {
         this.iOSStyleEnable = iOSStyleEnable;
         initiOSObjects();
+        setHasNoSeparator(true);
         invalidate();
+    }
+
+    /**
+     * set true to disable Emoji and special type
+     *
+     * @param disableEmoji true disable
+     */
+    public void setDisableEmoji(boolean disableEmoji) {
+        this.disableEmoji = disableEmoji;
+        if (disableEmoji) {
+            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+            setHasNoSeparator(true);
+        }
     }
 
     /**
@@ -435,4 +463,29 @@ public class XEditText extends EditText {
         ALWAYS
     }
 
+    /**
+     * hide the input method
+     */
+    private void hideInputMethod() {
+        InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(getWindowToken(), 0);
+    }
+
+    /**
+     * disable emoji and special symbol input
+     */
+    private class EmojiExcludeFilter implements InputFilter {
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            for (int i = start; i < end; i++) {
+                int type = Character.getType(source.charAt(i));
+                if (type == Character.SURROGATE || type == Character.OTHER_SYMBOL) {
+                    return "";
+                }
+            }
+            return null;
+        }
+    }
 }
