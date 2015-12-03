@@ -12,9 +12,9 @@ import com.xw.repo.xedittext.XEditText;
 
 public class MainActivity extends AppCompatActivity {
 
-    private XEditText defaultSeparatorEdit;
-    private XEditText customSeparatorEdit;
-    private XEditText showSeparatorEdit;
+    private XEditText defaultXEdit;
+    private XEditText customXEdit;
+    private XEditText showXEdit;
     private XEditText customMarkerEdit1;
     private TextView textView1, textView2;
 
@@ -23,18 +23,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        defaultSeparatorEdit = (XEditText) findViewById(R.id.default_edit_text);
-        customSeparatorEdit = (XEditText) findViewById(R.id.custom_edit_text);
-        showSeparatorEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
+        defaultXEdit = (XEditText) findViewById(R.id.default_edit_text);
+        customXEdit = (XEditText) findViewById(R.id.custom_edit_text);
+        showXEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
         customMarkerEdit1 = (XEditText) findViewById(R.id.custom_marker_edit_text1);
         textView1 = (TextView) findViewById(R.id.text1);
         textView2 = (TextView) findViewById(R.id.text2);
         Button button = (Button) findViewById(R.id.show_pattern_btn);
 
-        customSeparatorEdit.setPattern(new int[]{4, 4, 4, 4});
-        customSeparatorEdit.setSeparator("-");
+        customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
-        defaultSeparatorEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
+        defaultXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -47,10 +46,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView1.setText(defaultSeparatorEdit.getNonSeparatorText());
+                textView1.setText(defaultXEdit.getNonSeparatorText());
             }
         });
-        customSeparatorEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
+        customXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -63,13 +62,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView2.setText(customSeparatorEdit.getNonSeparatorText());
+                textView2.setText(customXEdit.getNonSeparatorText());
             }
         });
+
+        showXEdit.setSeparator(" ");
+        showXEdit.setPattern(new int[]{3, 4, 4});
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showSeparatorEdit.setTextToSeparate("13800000000");
+                showXEdit.setTextToSeparate("13800000000");
             }
         });
 
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 new MarkerPopWindow(MainActivity.this, customMarkerEdit1, (int) x, (int) y);
             }
         });
+
     }
 
 }

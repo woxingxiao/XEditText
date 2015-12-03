@@ -17,9 +17,7 @@
             android:id="@+id/default_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="默认分割格式"
-            android:inputType="phone"/>
-        <!--切勿设置maxLength属性-->
+            android:hint="default, same as EditText totally"/>
 
         <TextView
             android:id="@+id/text1"
@@ -32,10 +30,10 @@
             android:id="@+id/custom_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="自定义分割格式"
-            android:inputType="number"/>
-        <!-- 如果inputType="number" 的话是没法插入非数字字符的，
-        所以在初始化时已经强行转为inputType="phone"-->
+            android:hint="customize separating pattern"
+            android:inputType="phone"
+            app:x_separator="-"/>
+        <!-- if you want to separate, do not set maxLength attr -->
 
         <TextView
             android:id="@+id/text2"
@@ -48,13 +46,13 @@
             android:id="@+id/show_pattern_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="分割13800000000"/>
+            android:text="separate:13800000000"/>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/show_separator_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="自动显示为分割格式"/>
+            android:hint="normal String separate to pattern"/>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/custom_marker_edit_text1"
@@ -63,7 +61,7 @@
             android:layout_marginTop="20dp"
             android:drawableRight="@drawable/icon_tips"
             android:gravity="center_vertical"
-            android:hint="自定义Marker输入后显示（默认）"/>
+            android:hint="cus-Marker shows after inputting"/>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/custom_marker_edit_text2"
@@ -71,7 +69,7 @@
             android:layout_height="wrap_content"
             android:drawableRight="@drawable/icon_tips"
             android:gravity="center_vertical"
-            android:hint="自定义Marker输入前显示"
+            android:hint="cus-Marker shows before inputting"
             app:x_customizeMarkerEnable="true"
             app:x_showMarkerTime="before_input"/>
 
@@ -81,7 +79,7 @@
             android:layout_height="wrap_content"
             android:drawableRight="@drawable/icon_tips"
             android:gravity="center_vertical"
-            android:hint="自定义Marker一直显示"
+            android:hint="cus-Marker shows once having focus"
             app:x_customizeMarkerEnable="true"
             app:x_showMarkerTime="always"/>
 
@@ -92,7 +90,22 @@
             android:layout_marginTop="20dp"
             android:background="@drawable/shape_corner_gray_bg"
             android:drawableLeft="@drawable/icon_search"
-            android:hint="搜索"
+            android:hint="search"
             app:x_iOSStyleEnable="true"/>
+
+        <com.xw.repo.xedittext.XEditText
+            android:id="@+id/enable_emoji_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="enable emoji inputting"
+            app:x_disableEmoji="false"/>
+
+        <com.xw.repo.xedittext.XEditText
+            android:id="@+id/disable_emoji_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="disable emoji inputting"
+            app:x_disableEmoji="true"/>
     </LinearLayout>
 </ScrollView>
