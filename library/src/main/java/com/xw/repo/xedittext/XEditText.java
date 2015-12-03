@@ -22,11 +22,9 @@ import android.widget.EditText;
 /**
  * XEditText
  * Created by woxingxiao on 2015/9/4.
+ * Github: https://github.com/woxingxiao/XEditText
  */
 public class XEditText extends EditText {
-
-    private static final String SPACE = " ";
-    private static final int[] DEFAULT_PATTERN = new int[]{3, 4, 4};
 
     private OnTextChangeListener mTextChangeListener;
     private OnMarkerClickListener mMarkerClickListener;
@@ -36,30 +34,32 @@ public class XEditText extends EditText {
     private Drawable mRightMarkerDrawable;
     private Drawable mLeftDrawable;
     private boolean hasFocused;
-    private int[] pattern; // 模板
-    private int[] intervals; // 根据模板控制分隔符的插入位置
-    private String separator; //分割符，默认使用空格分割
-    // 根据模板自动计算最大输入长度，超出输入无效。使用pattern时无需在xml中设置maxLength属性，若需要设置时应注意加上分隔符的数量
+    private int[] pattern = new int[]{1000}; // pattern to separate. maxLength 1000 characters by default
+    private int[] intervals; // indexes of separators.
+    private String separator; //separator，default is "".
+
+    // according to the pattern that you set, compute automatically the max length of characters and separators,
+    // but when you set pattern, you shouldn't set maxLength attr in your xml any more.
     private int maxLength;
-    private boolean hasNoSeparator; // 设置为true时功能同EditText
-    private boolean customizeMarkerEnable; // 自定义右侧Marker点击选项使能
-    private ShowMarkerTime mShowMarkerTime; // 自定义选项后选项显示的时间，默认输入后显示
+    private boolean hasNoSeparator; // true, the same as EditText.
+    private boolean customizeMarkerEnable; // true, you can customize the Marker's onClick event.
+    private ShowMarkerTime mShowMarkerTime; // set when ths Marker shows，after inputted by default.
     private Paint mTextPaint;
     private Rect mRect;
     private Rect mTextRect;
     private Bitmap mBitmap;
     private Paint mBitPaint;
-    private boolean iOSStyleEnable; // 仿iOS风格，目前需要结合shape.xml的方式设置外边框
+    private boolean iOSStyleEnable; // iOS style，to set this, you should combine 'shape.xml' to set frame.
     private boolean iOSFrameHide;
     private CharSequence mHintCharSeq;
-    private boolean disableEmoji;
+    private boolean disableEmoji; // disable emoji and some special symbol inputting.
 
     public XEditText(Context context) {
         this(context, null);
     }
 
     public XEditText(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.editTextStyle); // Attention !
+        this(context, attrs, android.R.attr.editTextStyle); // Attention here !
     }
 
     public XEditText(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -67,7 +67,7 @@ public class XEditText extends EditText {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.XEditText, defStyleAttr, 0);
 
         separator = a.getString(R.styleable.XEditText_x_separator);
-        if (separator == null) separator = SPACE;
+        if (separator == null) separator = "";
         customizeMarkerEnable = a.getBoolean(R.styleable.XEditText_x_customizeMarkerEnable, false);
         int which = a.getInt(R.styleable.XEditText_x_showMarkerTime, 0);
         switch (which) {
@@ -89,20 +89,19 @@ public class XEditText extends EditText {
     }
 
     private void init() {
-        // 如果设置 inputType="number" 的话是没法插入空格的，所以强行转为inputType="phone"
-        if (getInputType() == InputType.TYPE_CLASS_NUMBER)
+        if (getInputType() == InputType.TYPE_CLASS_NUMBER) // if inputType="number", it can't insert separator.
             setInputType(InputType.TYPE_CLASS_PHONE);
-        setPattern(DEFAULT_PATTERN);
 
+        setPattern(pattern);
         mTextWatcher = new MyTextWatcher();
         this.addTextChangedListener(mTextWatcher);
         mRightMarkerDrawable = getCompoundDrawables()[2];
-        if (customizeMarkerEnable && mRightMarkerDrawable != null) { // 如果自定义Marker，暂时不显示rightDrawable
+        if (customizeMarkerEnable && mRightMarkerDrawable != null) {
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
             setHasNoSeparator(true);
         }
-        if (mRightMarkerDrawable == null) { // 如未设置则采用默认
+        if (mRightMarkerDrawable == null) { // didn't customize Marker
             mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_clear);
             if (mRightMarkerDrawable != null)
                 mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(), mRightMarkerDrawable.getIntrinsicHeight());
@@ -178,7 +177,7 @@ public class XEditText extends EditText {
     }
 
     /**
-     * 监听右侧Marker图标点击事件
+     * listen Marker's onTouch event
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -206,7 +205,7 @@ public class XEditText extends EditText {
     }
 
     /**
-     * 自定义分隔符
+     * set customize separator
      */
     public void setSeparator(String separator) {
         if (separator == null) {
@@ -216,9 +215,9 @@ public class XEditText extends EditText {
     }
 
     /**
-     * 自定义分割模板
+     * set customize pattern
      *
-     * @param pattern 每一段的字符个数的数组
+     * @param pattern e.g. pattern:{4,4,4,4}, separator:"-"  ===>  xxxx-xxxx-xxxx-xxxx
      */
     public void setPattern(int[] pattern) {
         if (pattern == null) {
@@ -239,14 +238,14 @@ public class XEditText extends EditText {
     }
 
     /**
-     * 自定义输入框最右边Marker图标
+     * set customize Marker drawable on the right
      */
     public void setRightMarkerDrawable(int resId) {
         mRightMarkerDrawable = getResources().getDrawable(resId);
     }
 
     /**
-     * 输入待转换格式的字符串
+     * set CharSequence to separate
      */
     public void setTextToSeparate(CharSequence c) {
         if (c == null || c.length() == 0)
@@ -259,14 +258,14 @@ public class XEditText extends EditText {
     }
 
     /**
-     * 获得除去分割符的输入框内容
+     * get text without separators
      */
     public String getNonSeparatorText() {
         return getText().toString().replaceAll(separator, "");
     }
 
     /**
-     * 是否自定义Marker
+     * set customize Marker enable
      */
     public void setCustomizeMarkerEnable(boolean customizeMarkerEnable) {
         this.customizeMarkerEnable = customizeMarkerEnable;
@@ -278,25 +277,25 @@ public class XEditText extends EditText {
     }
 
     /**
-     * Marker在什么时间显示
+     * when Marker shows
      *
-     * @param showMarkerTime BEFORE_INPUT：没有输入内容时显示；
-     *                       AFTER_INPUT：有输入内容后显示；
-     *                       ALWAYS：（获得焦点后）一直显示
+     * @param showMarkerTime BEFORE_INPUT：has none contents
+     *                       AFTER_INPUT：has contents
+     *                       ALWAYS：shows once having focus
      */
     public void setShowMarkerTime(ShowMarkerTime showMarkerTime) {
         mShowMarkerTime = showMarkerTime;
     }
 
     /**
-     * @return 是否有分割符
+     * @return has separator or not
      */
     public boolean hasNoSeparator() {
         return hasNoSeparator;
     }
 
     /**
-     * @param hasNoSeparator true设置无分隔符模式，功能同EditText
+     * @param hasNoSeparator true, has no separator, the same as EditText
      */
     public void setHasNoSeparator(boolean hasNoSeparator) {
         this.hasNoSeparator = hasNoSeparator;
@@ -304,37 +303,36 @@ public class XEditText extends EditText {
     }
 
     /**
-     * @param iOSStyleEnable true:开启仿iOS风格编辑框模式
+     * @param iOSStyleEnable true, iOS style enable
      */
     public void setiOSStyleEnable(boolean iOSStyleEnable) {
         this.iOSStyleEnable = iOSStyleEnable;
-        initiOSObjects();
-        setHasNoSeparator(true);
-        invalidate();
-    }
-
-    /**
-     * set true to disable Emoji and special type
-     *
-     * @param disableEmoji true disable
-     */
-    public void setDisableEmoji(boolean disableEmoji) {
-        this.disableEmoji = disableEmoji;
-        if (disableEmoji) {
-            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
-            setHasNoSeparator(true);
+        if (iOSStyleEnable) {
+            initiOSObjects();
+            invalidate();
         }
     }
 
     /**
-     * 设置OnTextChangeListener，同EditText.addOnTextChangeListener()
+     * set true to disable Emoji and special symbol
+     *
+     * @param disableEmoji true, disable emoji
+     */
+    public void setDisableEmoji(boolean disableEmoji) {
+        this.disableEmoji = disableEmoji;
+        if (disableEmoji)
+            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+    }
+
+    /**
+     * the same as EditText.addOnTextChangeListener(TextWatcher textWatcher)
      */
     public void setOnTextChangeListener(OnTextChangeListener listener) {
         this.mTextChangeListener = listener;
     }
 
     /**
-     * 设置OnMarkerClickListener，Marker被点击的监听
+     * set on Marker click listener
      */
     public void setOnMarkerClickListener(OnMarkerClickListener markerClickListener) {
         mMarkerClickListener = markerClickListener;
@@ -351,6 +349,8 @@ public class XEditText extends EditText {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (mTextChangeListener != null)
+                mTextChangeListener.onTextChanged(s, start, before, count);
             currLength = s.length();
             if (hasNoSeparator) maxLength = currLength;
 
@@ -363,13 +363,13 @@ public class XEditText extends EditText {
 
             for (int i = 0; i < pattern.length; i++) {
                 if (currLength == intervals[i]) {
-                    if (currLength > preLength) { // 正在输入
+                    if (currLength > preLength) { // inputting
                         if (currLength < maxLength) {
                             removeTextChangedListener(mTextWatcher);
                             mTextWatcher = null;
                             getText().insert(currLength, separator);
                         }
-                    } else if (preLength <= maxLength) { // 正在删除
+                    } else if (preLength <= maxLength) { // deleting
                         removeTextChangedListener(mTextWatcher);
                         mTextWatcher = null;
                         getText().delete(currLength - 1, currLength);
@@ -383,15 +383,10 @@ public class XEditText extends EditText {
                     break;
                 }
             }
-
-            if (mTextChangeListener != null)
-                mTextChangeListener.onTextChanged(s, start, before, count);
         }
-
 
         @Override
         public void afterTextChanged(Editable s) {
-
             if (mTextChangeListener != null)
                 mTextChangeListener.afterTextChanged(s);
         }
@@ -432,7 +427,7 @@ public class XEditText extends EditText {
             iOSFrameHide = true;
             invalidate();
         } else {
-            if (currLength == 0) { // 编辑框无内容恢复居中状态
+            if (currLength == 0) {
                 initiOSObjects();
                 invalidate();
             }
@@ -451,8 +446,8 @@ public class XEditText extends EditText {
     public interface OnMarkerClickListener {
 
         /**
-         * @param x 被点击点相对于屏幕的x坐标
-         * @param y 被点击点相对于屏幕的y坐标
+         * @param x clicked pointer's x coordinate
+         * @param y clicked pointer's y coordinate
          */
         void onMarkerClick(float x, float y);
     }
