@@ -52,7 +52,7 @@ public class XEditText extends EditText {
     private boolean iOSStyleEnable; // iOS style，to set this, you should combine 'shape.xml' to set frame.
     private boolean iOSFrameHide;
     private CharSequence mHintCharSeq;
-    private boolean disableEmoji; // disable emoji and some special symbol inputting.
+    private boolean disableEmoji; // disable emoji and some special symbol input.
 
     public XEditText(Context context) {
         this(context, null);
@@ -102,7 +102,7 @@ public class XEditText extends EditText {
             setHasNoSeparator(true);
         }
         if (mRightMarkerDrawable == null) { // didn't customize Marker
-            mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_clear);
+            mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_x_edit_text_clear);
             if (mRightMarkerDrawable != null)
                 mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(), mRightMarkerDrawable.getIntrinsicHeight());
         }
@@ -273,8 +273,8 @@ public class XEditText extends EditText {
     /**
      * when Marker shows
      *
-     * @param showMarkerTime BEFORE_INPUT：has none contents
-     *                       AFTER_INPUT：has contents
+     * @param showMarkerTime BEFORE_INPUT：if has none contents
+     *                       AFTER_INPUT：if has contents
      *                       ALWAYS：shows once having focus
      */
     public void setShowMarkerTime(ShowMarkerTime showMarkerTime) {
@@ -297,25 +297,34 @@ public class XEditText extends EditText {
     }
 
     /**
-     * @param iOSStyleEnable true, iOS style enable
+     * @param iOSStyleEnable true: enable iOS style;
+     *                       false: disable iOS style
      */
     public void setiOSStyleEnable(boolean iOSStyleEnable) {
         this.iOSStyleEnable = iOSStyleEnable;
         if (iOSStyleEnable) {
             initiOSObjects();
-            invalidate();
+        } else {
+            setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
+                    getCompoundDrawables()[2], getCompoundDrawables()[3]);
+            setHint(mHintCharSeq);
+            iOSFrameHide = true;
         }
+        invalidate();
     }
 
     /**
      * set true to disable Emoji and special symbol
      *
-     * @param disableEmoji true, disable emoji
+     * @param disableEmoji true: disable emoji;
+     *                     false: enable emoji
      */
     public void setDisableEmoji(boolean disableEmoji) {
         this.disableEmoji = disableEmoji;
         if (disableEmoji)
             setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+        else
+            setFilters(new InputFilter[0]);
     }
 
     /**
