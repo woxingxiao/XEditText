@@ -226,7 +226,7 @@ public class XEditText extends EditText {
             sum += pattern[i];
             intervals[i] = sum + count;
             if (i < pattern.length - 1)
-                count++;
+                count += separator.length();
         }
         maxLength = intervals[intervals.length - 1];
     }
