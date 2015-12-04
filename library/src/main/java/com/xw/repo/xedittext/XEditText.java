@@ -369,19 +369,14 @@ public class XEditText extends EditText {
                     if (currLength > preLength) { // inputting
                         if (currLength < maxLength) {
                             removeTextChangedListener(mTextWatcher);
-                            mTextWatcher = null;
                             getText().insert(currLength, separator);
                         }
                     } else if (preLength <= maxLength) { // deleting
                         removeTextChangedListener(mTextWatcher);
-                        mTextWatcher = null;
                         getText().delete(currLength - 1, currLength);
                     }
 
-                    if (mTextWatcher == null) {
-                        mTextWatcher = new MyTextWatcher();
-                        addTextChangedListener(mTextWatcher);
-                    }
+                    addTextChangedListener(mTextWatcher);
 
                     break;
                 }
