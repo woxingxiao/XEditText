@@ -11,7 +11,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="60dp">
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/default_edit_text"
@@ -90,7 +91,9 @@
             android:layout_marginTop="20dp"
             android:background="@drawable/shape_corner_gray_bg"
             android:drawableLeft="@drawable/icon_search"
+            android:drawablePadding="5dp"
             android:hint="search"
+            android:padding="5dp"
             app:x_iOSStyleEnable="true"/>
 
         <com.xw.repo.xedittext.XEditText
