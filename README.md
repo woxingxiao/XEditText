@@ -1,12 +1,13 @@
 ##Gradle
 ```groovy
 dependencies{
-    compile 'com.xw.repo:xedittext:1.0.0@aar'
+    compile 'com.xw.repo:xedittext:1.0.1@aar'
 }
 ```
 
-![image](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo.gif)
-![image](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo2.gif)
+![demo3](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo3.gif) ![demo4](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo4.gif)
+
+![demo4](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo4.gif) ![demo5](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo5.gif)
 ***
 ###Attributes
 attr | format | describe
@@ -15,6 +16,7 @@ x_separator|String|分隔符，默认是一个空格
 x_customizeMarkerEnable|boolean|是否自定义Marker
 x_showMarkerTime|enum|显示Marker的时间：after_input(default), before_input, always
 x_iOSStyleEnable|boolean|是否使用iOS风格
+x_disableEmoji|boolean|禁止Emoji输入, 默认可以输入
 ***
 ###Methods：
 方法名     | 描述
@@ -30,3 +32,4 @@ setCustomizeMarkerEnable(boolean customizeMarkerEnable)|设置是否自定义Mar
 setOnMarkerClickListener(OnMarkerClickListener markerClickListener)|自定义Marker的点击监听
 setShowMarkerTime(ShowMarkerTime showMarkerTime)|设置显示Marker的时间
 setiOSStyleEnable(boolean iOSStyleEnable)|设置是否使用iOS风格
+setDisableEmoji(boolean disableEmoji)|true, 设置禁止Emoji输入
