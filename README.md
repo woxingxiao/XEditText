@@ -1,3 +1,5 @@
+[**中文说明**](https://github.com/woxingxiao/XEditText/blob/master/README_zh.md)
+
 ##What can I do ?
 - Deleting function is available. Click the `drawableRight` icon to clear all contents.
 - Insert **separator** automatically during inputting. You can customize the **separator** whatever you want (`""`,  `-`, etc.). But you have to set **pattern**, which is kind of a rule you are going to separate the contents.
@@ -5,7 +7,9 @@
 - `drawableRight` icon, which be called **Marker**, can also be customized. When you do that, for example, you can turn it as an input tips option with a `PopUpWindow` by listening to the **Marker**'s `onMarkerClickListener`.
 - iOS style is available. `drawableLeft` and `hint` are both at the center of `EditText` when it has not be focused.
 ***
+
 ##How to use ?
+
 ###Gradle
 ```groovy
 dependencies{

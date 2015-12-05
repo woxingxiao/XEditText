@@ -6,7 +6,9 @@
 - **`drawableRight`自定义，点击监听，配合PopupWindow等进行输入提示；**
 - **支持仿iOS输入框风格**
 ***
+
 ##怎么玩儿
+
 ###Gradle
 ```groovy
 dependencies{
