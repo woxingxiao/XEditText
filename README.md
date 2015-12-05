@@ -1,4 +1,12 @@
-##Gradle
+##What can I do ?
+- Deleting function is available. Click the `drawableRight` icon to clear all contents.
+- Insert **separator** automatically during inputting. You can customize the **separator** whatever you want (`""`,  `-`, etc.). But you have to set **pattern**, which is kind of a rule you are going to separate the contents.
+- Can disable **Emoji** input easily. You don't need to exclude the **Emoji** by youself in codes anymore. <img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/>
+- `drawableRight` icon, which be called **Marker**, can also be customized. When you do that, for example, you can turn it as an input tips option with a `PopUpWindow` by listening to the **Marker**'s `onMarkerClickListener`.
+- iOS style is available. `drawableLeft` and `hint` are both at the center of `EditText` when it has not be focused.
+***
+##How to use ?
+###Gradle
 ```groovy
 dependencies{
     compile 'com.xw.repo:xedittext:1.0.1@aar'
@@ -12,24 +20,24 @@ dependencies{
 ###Attributes
 attr | format | describe
 -------- | ---|---
-x_separator|String|分隔符，默认是一个空格
-x_customizeMarkerEnable|boolean|是否自定义Marker
-x_showMarkerTime|enum|显示Marker的时间：after_input(default), before_input, always
-x_iOSStyleEnable|boolean|是否使用iOS风格
-x_disableEmoji|boolean|禁止Emoji输入, 默认可以输入
+x_separator|String|**separator**, insert automatically during inputting. `""` by default.
+x_disableEmoji|boolean|disable **Emoji** or not, `false` by default.
+x_customizeMarkerEnable|boolean|customize **Marker** or not, `false` by default.
+x_showMarkerTime|enum|set when **Marker** shows, 3 options: `after_input`(by default), `before_input`, `always`
+x_iOSStyleEnable|boolean|enable **iOS style** or not, `false` by default.
 ***
 ###Methods：
-方法名     | 描述
+name     | describe
 -------- | ---
-setSeparator(String separator)| 自定义分隔符，默认是一个空格
-setHasNoSeparator(boolean hasNoSeparator)| 设置无分隔符，功能同普通EditText
-setPattern(int[] pattern) |自定义模板，默认常见手机号分割，即int[]{3,4,4}
-setClearDrawable(int resId)| 自定义删除图标的图片资源
-setTextToSeparate(CharSequence c)|设置需要自动模板转换的内容
-getNonSeparatorText()|获得无分割符的内容
-setOnTextChangeListener(OnTextChangeListener listener)|设置输入监听，功能与EditText的addOnTextChangeListener()完全一样
-setCustomizeMarkerEnable(boolean customizeMarkerEnable)|设置是否自定义Marker
-setOnMarkerClickListener(OnMarkerClickListener markerClickListener)|自定义Marker的点击监听
-setShowMarkerTime(ShowMarkerTime showMarkerTime)|设置显示Marker的时间
-setiOSStyleEnable(boolean iOSStyleEnable)|设置是否使用iOS风格
-setDisableEmoji(boolean disableEmoji)|true, 设置禁止Emoji输入
+setSeparator(String separator)| what **separator** you want to set.
+setHasNoSeparator(boolean hasNoSeparator)| set none **separator** or not, if set `true`, **separator** equals `""`.
+setPattern(int[] pattern) |**pattern** is a kind of rules that you want to separate the contents, for example, credit card input: **separator** = `"-"`, **pattern** = `int[]{4,4,4,4}`, result = xxxx-xxxx-xxxx-xxxx.
+setClearDrawable(int resId)|set your `drawableResId` to replace the defalut clear icon.
+setTextToSeparate(CharSequence c)|set normal strings to `EditText`, then show separated strings according to  **separator** and **pattern** you've set already.
+getNonSeparatorText()|get none **separator**s contents, no matter you've set **separator** or not.
+setOnTextChangeListener(OnTextChangeListener listener)|the same as `EditText`'s addOnTextChangeListener() method.
+setDisableEmoji(boolean disableEmoji)|disable **Emoji** or not.
+setCustomizeMarkerEnable(boolean customizeMarkerEnable)|customize **Marker** or not.
+setOnMarkerClickListener(OnMarkerClickListener markerClickListener)|listen to **Marker**'s `onTouch` event.
+setShowMarkerTime(ShowMarkerTime showMarkerTime)|set when the **Marker** shows.
+setiOSStyleEnable(boolean iOSStyleEnable)|enable **iOS style** or not.
