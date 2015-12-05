@@ -354,6 +354,13 @@ public class XEditText extends EditText {
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (mTextChangeListener != null)
                 mTextChangeListener.onTextChanged(s, start, before, count);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (mTextChangeListener != null)
+                mTextChangeListener.afterTextChanged(s);
+
             currLength = s.length();
             if (hasNoSeparator) maxLength = currLength;
 
@@ -365,11 +372,11 @@ public class XEditText extends EditText {
             }
 
             for (int i = 0; i < pattern.length; i++) {
-                if (currLength == intervals[i]) {
+                if (currLength - 1 == intervals[i]) {
                     if (currLength > preLength) { // inputting
                         if (currLength < maxLength) {
                             removeTextChangedListener(mTextWatcher);
-                            getText().insert(currLength, separator);
+                            getText().insert(currLength - 1, separator);
                         }
                     } else if (preLength <= maxLength) { // deleting
                         removeTextChangedListener(mTextWatcher);
@@ -381,12 +388,6 @@ public class XEditText extends EditText {
                     break;
                 }
             }
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (mTextChangeListener != null)
-                mTextChangeListener.afterTextChanged(s);
         }
     }
 
