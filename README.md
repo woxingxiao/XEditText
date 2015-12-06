@@ -20,7 +20,7 @@ dependencies{
 
 ![demo3](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo3.gif) ![demo4](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo4.gif)
 
-![demo4](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo4.gif) ![demo5](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo5.gif)
+![demo5](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo5.gif) ![demo6](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo6.gif)
 ***
 ###Attributes
 attr | format | describe
