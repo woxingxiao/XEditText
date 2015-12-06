@@ -6,6 +6,7 @@
 - Can disable **Emoji** input easily. You don't need to exclude the **Emoji** by youself in codes anymore. <img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/>
 - `drawableRight` icon, which be called **Marker**, can also be customized. When you do that, for example, you can turn it as an input tips option with a `PopUpWindow` by listening to the **Marker**'s `onMarkerClickListener`.
 - iOS style is available. `drawableLeft` and `hint` are both at the center of `EditText` when it has not be focused.
+
 ***
 
 ##How to use ?
