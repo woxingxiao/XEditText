@@ -234,7 +234,14 @@ public class XEditText extends EditText {
     /**
      * set customize Marker drawable on the right
      */
-    public void setRightMarkerDrawable(int resId) {
+    public void setRightMarkerDrawable(Drawable drawable) {
+        mRightMarkerDrawable = drawable;
+    }
+
+    /**
+     * set customize Marker drawableResId on the right
+     */
+    public void setRightMarkerDrawableRes(int resId) {
         mRightMarkerDrawable = getResources().getDrawable(resId);
     }
 
@@ -266,7 +273,6 @@ public class XEditText extends EditText {
         if (customizeMarkerEnable && mRightMarkerDrawable != null) { // 如果自定义Marker，暂时不显示rightDrawable
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
-            setHasNoSeparator(true);
         }
     }
 
