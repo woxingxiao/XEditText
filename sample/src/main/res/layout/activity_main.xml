@@ -20,6 +20,12 @@
             android:layout_height="wrap_content"
             android:hint="default, same as EditText totally"/>
 
+        <com.xw.repo.xedittext.XEditText
+            android:id="@+id/clear_marker_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="click right icon to clear contents"/>
+
         <TextView
             android:id="@+id/text1"
             android:layout_width="match_parent"

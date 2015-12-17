@@ -13,6 +13,7 @@ import com.xw.repo.xedittext.XEditText;
 public class MainActivity extends AppCompatActivity {
 
     private XEditText defaultXEdit;
+    private XEditText clearXEdit;
     private XEditText customXEdit;
     private XEditText showXEdit;
     private XEditText customMarkerEdit1;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         defaultXEdit = (XEditText) findViewById(R.id.default_edit_text);
+        clearXEdit = (XEditText) findViewById(R.id.clear_marker_edit_text);
         customXEdit = (XEditText) findViewById(R.id.custom_edit_text);
         showXEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
         customMarkerEdit1 = (XEditText) findViewById(R.id.custom_marker_edit_text1);
@@ -31,9 +33,10 @@ public class MainActivity extends AppCompatActivity {
         textView2 = (TextView) findViewById(R.id.text2);
         Button button = (Button) findViewById(R.id.show_pattern_btn);
 
+        defaultXEdit.setRightMarkerDrawable(null);
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
-        defaultXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
+        clearXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView1.setText(defaultXEdit.getNonSeparatorText());
+                textView1.setText(clearXEdit.getNonSeparatorText());
             }
         });
         customXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
