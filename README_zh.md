@@ -36,7 +36,8 @@ x_iOSStyleEnable|boolean|是否使用iOS风格
 setSeparator(String separator)| 自定义分隔符，默认是一个空格
 setHasNoSeparator(boolean hasNoSeparator)| 设置无分隔符，功能同普通EditText
 setPattern(int[] pattern) |自定义模板，默认常见手机号分割，即int[]{3,4,4}
-setClearDrawable(int resId)| 自定义删除图标的图片资源
+setRightMarkerDrawable(Drawable drawable)|自定义**Marker**图标。当设置为空时，**Marker**被隐藏
+setRightMarkerDrawableRes(int resId)|自定义**Marker**图标的资源id
 setTextToSeparate(CharSequence c)|设置需要自动模板转换的内容
 getNonSeparatorText()|获得无分割符的内容
 setOnTextChangeListener(OnTextChangeListener listener)|设置输入监听，功能与EditText的addOnTextChangeListener()完全一样

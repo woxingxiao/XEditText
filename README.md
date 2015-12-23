@@ -3,7 +3,7 @@
 ##What can I do ?
 - Deleting function is available. Click the `drawableRight` icon to clear all contents.
 - Insert **separator** automatically during inputting. You can customize the **separator** whatever you want (`""`,  `-`, etc.). But you have to set **pattern**, which is kind of a rule you are going to separate the contents.
-- Can disable **Emoji** input easily. You don't need to exclude the **Emoji** by youself in codes anymore. <img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/>
+- Can disable **Emoji** input easily. You don't need to exclude the **Emoji** by yourself in codes anymore. <img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/>
 - `drawableRight` icon, which be called **Marker**, can also be customized. When you do that, for example, you can turn it as an input tips option with a `PopUpWindow` by listening to the **Marker**'s `onMarkerClickListener`.
 - iOS style is available. `drawableLeft` and `hint` are both at the center of `EditText` when it has not be focused.
 
@@ -37,7 +37,8 @@ name     | describe
 setSeparator(String separator)| what **separator** you want to set.
 setHasNoSeparator(boolean hasNoSeparator)| set none **separator** or not, if set `true`, **separator** equals `""`.
 setPattern(int[] pattern) |**pattern** is a kind of rules that you want to separate the contents, for example, credit card input: **separator** = `"-"`, **pattern** = `int[]{4,4,4,4}`, result = xxxx-xxxx-xxxx-xxxx.
-setClearDrawable(int resId)|set your `drawableResId` to replace the defalut clear icon.
+setRightMarkerDrawable(Drawable drawable)|set `drawable` to replace the default clear icon.When `drawable == null`, **Marker** is invisible.
+setRightMarkerDrawableRes(int resId)|set `drawableResId` to replace the default clear icon.
 setTextToSeparate(CharSequence c)|set normal strings to `EditText`, then show separated strings according to  **separator** and **pattern** you've set already.
 getNonSeparatorText()|get none **separator**s contents, no matter you've set **separator** or not.
 setOnTextChangeListener(OnTextChangeListener listener)|the same as `EditText`'s addOnTextChangeListener() method.
