@@ -13,7 +13,7 @@
 ###Gradle
 ```groovy
 dependencies{
-    compile 'com.xw.repo:xedittext:1.0.3@aar'
+    compile 'com.xw.repo:xedittext:1.0.4@aar'
 }
 ```
 
@@ -46,3 +46,4 @@ setCustomizeMarkerEnable(boolean customizeMarkerEnable)|设置是否自定义Mar
 setOnMarkerClickListener(OnMarkerClickListener markerClickListener)|自定义Marker的点击监听
 setShowMarkerTime(ShowMarkerTime showMarkerTime)|设置显示Marker的时间
 setiOSStyleEnable(boolean iOSStyleEnable)|设置是否使用iOS风格
+setMaxLength(int maxLength)|设置输入内容最大长度

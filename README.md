@@ -14,7 +14,7 @@
 ###Gradle
 ```groovy
 dependencies{
-    compile 'com.xw.repo:xedittext:1.0.3@aar'
+    compile 'com.xw.repo:xedittext:1.0.4@aar'
 }
 ```
 
@@ -47,3 +47,4 @@ setCustomizeMarkerEnable(boolean customizeMarkerEnable)|customize **Marker** or 
 setOnMarkerClickListener(OnMarkerClickListener markerClickListener)|listen to **Marker**'s `onTouch` event.
 setShowMarkerTime(ShowMarkerTime showMarkerTime)|set when the **Marker** shows.
 setiOSStyleEnable(boolean iOSStyleEnable)|enable **iOS style** or not.
+setMaxLength(int maxLength)|set max length of contents.
