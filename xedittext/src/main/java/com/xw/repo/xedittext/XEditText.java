@@ -34,13 +34,12 @@ public class XEditText extends EditText {
     private Drawable mRightMarkerDrawable;
     private Drawable mLeftDrawable;
     private boolean hasFocused;
-    private int[] pattern = new int[]{1000}; // pattern to separate. maxLength 1000 characters by default
+    private int[] pattern; // pattern to separate. e.g.: separator = "-", pattern = [3,4,4] -> xxx-xxxx-xxxx
     private int[] intervals; // indexes of separators.
     private String separator; //separator，default is "".
-
-    // according to the pattern that you set, compute automatically the max length of characters and separators,
-    // but when you set pattern, you shouldn't set maxLength attr in your xml any more.
-    private int maxLength;
+    /* When you set pattern, it will automatically compute the max length of characters and separators,
+     so you don't need to set 'maxLength' attr in your xml any more(it won't work).*/
+    private int mMaxLength = Integer.MAX_VALUE;
     private boolean hasNoSeparator; // true, the same as EditText.
     private boolean customizeMarkerEnable; // true, you can customize the Marker's onClick event.
     private ShowMarkerTime mShowMarkerTime; // set when ths Marker shows，after inputted by default.
@@ -92,7 +91,6 @@ public class XEditText extends EditText {
         if (getInputType() == InputType.TYPE_CLASS_NUMBER) // if inputType="number", it can't insert separator.
             setInputType(InputType.TYPE_CLASS_PHONE);
 
-        setPattern(pattern);
         mTextWatcher = new MyTextWatcher();
         this.addTextChangedListener(mTextWatcher);
         mRightMarkerDrawable = getCompoundDrawables()[2];
@@ -228,7 +226,7 @@ public class XEditText extends EditText {
             if (i < pattern.length - 1)
                 count += separator.length();
         }
-        maxLength = intervals[intervals.length - 1];
+        mMaxLength = intervals[intervals.length - 1];
     }
 
     /**
@@ -347,6 +345,13 @@ public class XEditText extends EditText {
         mMarkerClickListener = markerClickListener;
     }
 
+    /**
+     * set max length of contents
+     */
+    public void setMaxLength(int maxLength) {
+        this.mMaxLength = maxLength;
+    }
+
     // =========================== MyTextWatcher ================================
     private class MyTextWatcher implements TextWatcher {
         @Override
@@ -368,23 +373,25 @@ public class XEditText extends EditText {
                 mTextChangeListener.afterTextChanged(s);
 
             currLength = s.length();
-            if (hasNoSeparator) maxLength = currLength;
+            if (hasNoSeparator) mMaxLength = currLength;
 
             markerFocusChangeLogic();
 
-            if (currLength > maxLength) {
+            if (currLength > mMaxLength) {
                 getText().delete(currLength - 1, currLength);
                 return;
             }
+            if (pattern == null)
+                return;
 
             for (int i = 0; i < pattern.length; i++) {
                 if (currLength - 1 == intervals[i]) {
                     if (currLength > preLength) { // inputting
-                        if (currLength < maxLength) {
+                        if (currLength < mMaxLength) {
                             removeTextChangedListener(mTextWatcher);
                             getText().insert(currLength - 1, separator);
                         }
-                    } else if (preLength <= maxLength) { // deleting
+                    } else if (preLength <= mMaxLength) { // deleting
                         removeTextChangedListener(mTextWatcher);
                         getText().delete(currLength - 1, currLength);
                     }
