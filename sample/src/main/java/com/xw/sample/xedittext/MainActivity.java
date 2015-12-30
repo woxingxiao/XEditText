@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
         textView2 = (TextView) findViewById(R.id.text2);
         Button button = (Button) findViewById(R.id.show_pattern_btn);
 
-        defaultXEdit.setRightMarkerDrawable(null);
+        defaultXEdit.setRightMarkerDrawable(null); // hide clear icon
+        defaultXEdit.setMaxLength(20); //set max length of contents
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
         clearXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
