@@ -1,3 +1,5 @@
+[![Download](https://api.bintray.com/packages/woxingxiao/maven/XEditText/images/download.svg)](https://bintray.com/woxingxiao/maven/XEditText/_latestVersion)
+
 ##我的特点
 - **自带清除功能图标，点击清除输入内容**
 - **输入时手机号时自动分割：138 0000 0000，提高用户体验，轻松实现；**

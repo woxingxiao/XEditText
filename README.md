@@ -1,3 +1,5 @@
+[![Download](https://api.bintray.com/packages/woxingxiao/maven/XEditText/images/download.svg)](https://bintray.com/woxingxiao/maven/XEditText/_latestVersion)
+
 [**中文说明**](https://github.com/woxingxiao/XEditText/blob/master/README_zh.md)
 
 ##What can I do ?
