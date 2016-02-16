@@ -24,7 +24,7 @@ public class MarkerPopWindow extends PopupWindow {
         this.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
         this.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         this.setAnimationStyle(R.style.Anim);
-        this.showAtLocation(rootLayout, Gravity.BOTTOM, x , y - rootLayout.getHeight());
+        this.showAtLocation(rootLayout, Gravity.NO_GRAVITY, x, y - rootLayout.getHeight() - 100); // adjust a little bit
     }
 
 }
