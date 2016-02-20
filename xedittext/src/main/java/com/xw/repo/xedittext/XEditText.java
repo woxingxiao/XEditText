@@ -66,7 +66,8 @@ public class XEditText extends EditText {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.XEditText, defStyleAttr, 0);
 
         separator = a.getString(R.styleable.XEditText_x_separator);
-        if (separator == null) separator = "";
+        if (separator == null) 
+        	separator = "";
         customizeMarkerEnable = a.getBoolean(R.styleable.XEditText_x_customizeMarkerEnable, false);
         int which = a.getInt(R.styleable.XEditText_x_showMarkerTime, 0);
         switch (which) {
@@ -114,8 +115,10 @@ public class XEditText extends EditText {
             }
         });
 
-        if (iOSStyleEnable) initiOSObjects();
-        if (disableEmoji) setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+        if (iOSStyleEnable) 
+        	initiOSObjects();
+        if (disableEmoji) 
+        	setFilters(new InputFilter[]{new EmojiExcludeFilter()});
     }
 
     private void initiOSObjects() {
@@ -153,7 +156,8 @@ public class XEditText extends EditText {
         super.onDraw(canvas);
 
         if (iOSStyleEnable) {
-            if (iOSFrameHide) return;
+            if (iOSFrameHide) 
+            	return;
 
             if (mHintCharSeq != null) {
                 Paint.FontMetricsInt fontMetrics = mTextPaint.getFontMetricsInt();
@@ -297,7 +301,8 @@ public class XEditText extends EditText {
      */
     public void setHasNoSeparator(boolean hasNoSeparator) {
         this.hasNoSeparator = hasNoSeparator;
-        if (hasNoSeparator) separator = "";
+        if (hasNoSeparator) 
+        	separator = "";
     }
 
     /**
@@ -373,7 +378,8 @@ public class XEditText extends EditText {
                 mTextChangeListener.afterTextChanged(s);
 
             currLength = s.length();
-            if (hasNoSeparator) mMaxLength = currLength;
+            if (hasNoSeparator) 
+            	mMaxLength = currLength;
 
             markerFocusChangeLogic();
 
@@ -416,11 +422,13 @@ public class XEditText extends EditText {
                 drawable = mRightMarkerDrawable;
                 break;
             case BEFORE_INPUT:
-                if (currLength == 0) drawable = mRightMarkerDrawable;
+                if (currLength == 0)
+                	drawable = mRightMarkerDrawable;
 
                 break;
             case AFTER_INPUT:
-                if (currLength > 0) drawable = mRightMarkerDrawable;
+                if (currLength > 0) 
+                	drawable = mRightMarkerDrawable;
 
                 break;
         }
@@ -429,7 +437,8 @@ public class XEditText extends EditText {
     }
 
     private void iOSFocusChangeLogic() {
-        if (!iOSStyleEnable) return;
+        if (!iOSStyleEnable) 
+        	return;
         if (hasFocused) {
             if (mLeftDrawable != null)
                 setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
