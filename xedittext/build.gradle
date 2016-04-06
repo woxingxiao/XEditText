@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "1.0.4"
+version = "1.0.5"
 group = "com.xw.repo"
 
 android {
@@ -9,9 +9,9 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 8
         targetSdkVersion 23
-        versionCode 4
+        versionCode 5
         versionName version
     }
     buildTypes {
@@ -20,6 +20,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:23.2.1'
 }
 
 def siteUrl = 'https://github.com/woxingxiao/XEditText'

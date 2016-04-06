@@ -8,6 +8,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -17,14 +20,13 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 /**
  * XEditText
  * Created by woxingxiao on 2015/9/4.
  * Github: https://github.com/woxingxiao/XEditText
  */
-public class XEditText extends EditText {
+public class XEditText extends AppCompatEditText {
 
     private OnTextChangeListener mTextChangeListener;
     private OnMarkerClickListener mMarkerClickListener;
@@ -66,8 +68,8 @@ public class XEditText extends EditText {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.XEditText, defStyleAttr, 0);
 
         separator = a.getString(R.styleable.XEditText_x_separator);
-        if (separator == null) 
-        	separator = "";
+        if (separator == null)
+            separator = "";
         customizeMarkerEnable = a.getBoolean(R.styleable.XEditText_x_customizeMarkerEnable, false);
         int which = a.getInt(R.styleable.XEditText_x_showMarkerTime, 0);
         switch (which) {
@@ -101,9 +103,12 @@ public class XEditText extends EditText {
             setHasNoSeparator(true);
         }
         if (mRightMarkerDrawable == null) { // didn't customize Marker
-            mRightMarkerDrawable = getResources().getDrawable(R.drawable.icon_x_edit_text_clear);
-            if (mRightMarkerDrawable != null)
-                mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(), mRightMarkerDrawable.getIntrinsicHeight());
+            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_clear_mtrl_alpha); // support v4
+            DrawableCompat.setTint(mRightMarkerDrawable, getCurrentHintTextColor());
+            if (mRightMarkerDrawable != null) {
+                mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(),
+                        mRightMarkerDrawable.getIntrinsicHeight());
+            }
         }
 
         setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -115,10 +120,10 @@ public class XEditText extends EditText {
             }
         });
 
-        if (iOSStyleEnable) 
-        	initiOSObjects();
-        if (disableEmoji) 
-        	setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+        if (iOSStyleEnable)
+            initiOSObjects();
+        if (disableEmoji)
+            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
     }
 
     private void initiOSObjects() {
@@ -156,12 +161,12 @@ public class XEditText extends EditText {
         super.onDraw(canvas);
 
         if (iOSStyleEnable) {
-            if (iOSFrameHide) 
-            	return;
+            if (iOSFrameHide)
+                return;
 
             if (mHintCharSeq != null) {
                 Paint.FontMetricsInt fontMetrics = mTextPaint.getFontMetricsInt();
-                int textCenterY = (mRect.bottom + mRect.top - fontMetrics.bottom - fontMetrics.top) / 2;
+                int textCenterY = (mRect.bottom + mRect.top - fontMetrics.bottom - fontMetrics.top) / 2 - 5;
                 canvas.drawText(mHintCharSeq.toString(), canvas.getWidth() / 2, canvas.getHeight() / 2 + textCenterY, mTextPaint);
             }
             if (mBitmap != null) {
@@ -238,13 +243,21 @@ public class XEditText extends EditText {
      */
     public void setRightMarkerDrawable(Drawable drawable) {
         mRightMarkerDrawable = drawable;
+        if (mRightMarkerDrawable != null) {
+            mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(),
+                    mRightMarkerDrawable.getIntrinsicHeight());
+        }
     }
 
     /**
      * set customize Marker drawableResId on the right
      */
     public void setRightMarkerDrawableRes(int resId) {
-        mRightMarkerDrawable = getResources().getDrawable(resId);
+        mRightMarkerDrawable = ContextCompat.getDrawable(getContext(), resId);
+        if (mRightMarkerDrawable != null) {
+            mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(),
+                    mRightMarkerDrawable.getIntrinsicHeight());
+        }
     }
 
     /**
@@ -301,8 +314,8 @@ public class XEditText extends EditText {
      */
     public void setHasNoSeparator(boolean hasNoSeparator) {
         this.hasNoSeparator = hasNoSeparator;
-        if (hasNoSeparator) 
-        	separator = "";
+        if (hasNoSeparator)
+            separator = "";
     }
 
     /**
@@ -378,8 +391,8 @@ public class XEditText extends EditText {
                 mTextChangeListener.afterTextChanged(s);
 
             currLength = s.length();
-            if (hasNoSeparator) 
-            	mMaxLength = currLength;
+            if (hasNoSeparator)
+                mMaxLength = currLength;
 
             markerFocusChangeLogic();
 
@@ -422,13 +435,11 @@ public class XEditText extends EditText {
                 drawable = mRightMarkerDrawable;
                 break;
             case BEFORE_INPUT:
-                if (currLength == 0)
-                	drawable = mRightMarkerDrawable;
+                if (currLength == 0) drawable = mRightMarkerDrawable;
 
                 break;
             case AFTER_INPUT:
-                if (currLength > 0) 
-                	drawable = mRightMarkerDrawable;
+                if (currLength > 0) drawable = mRightMarkerDrawable;
 
                 break;
         }
@@ -437,8 +448,8 @@ public class XEditText extends EditText {
     }
 
     private void iOSFocusChangeLogic() {
-        if (!iOSStyleEnable) 
-        	return;
+        if (!iOSStyleEnable)
+            return;
         if (hasFocused) {
             if (mLeftDrawable != null)
                 setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],

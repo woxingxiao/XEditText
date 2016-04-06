@@ -72,12 +72,14 @@ public class MainActivity extends AppCompatActivity {
 
         showXEdit.setSeparator(" ");
         showXEdit.setPattern(new int[]{3, 4, 4});
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showXEdit.setTextToSeparate("13800000000");
-            }
-        });
+        if (button != null) {
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showXEdit.setTextToSeparate("13800000000");
+                }
+            });
+        }
 
         customMarkerEdit1.setCustomizeMarkerEnable(true);
         customMarkerEdit1.setOnMarkerClickListener(new XEditText.OnMarkerClickListener() {
