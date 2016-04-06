@@ -103,7 +103,8 @@ public class XEditText extends AppCompatEditText {
             setHasNoSeparator(true);
         }
         if (mRightMarkerDrawable == null) { // didn't customize Marker
-            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_clear_mtrl_alpha); // support v4
+            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.abc_ic_clear_mtrl_alpha); // from support v4
             DrawableCompat.setTint(mRightMarkerDrawable, getCurrentHintTextColor());
             if (mRightMarkerDrawable != null) {
                 mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(),
