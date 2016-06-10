@@ -28,7 +28,7 @@ import android.view.inputmethod.InputMethodManager;
  */
 public class XEditText extends AppCompatEditText {
 
-    private OnTextChangeListener mTextChangeListener;
+    private OnXTextChangeListener mXTextChangeListener;
     private OnMarkerClickListener mMarkerClickListener;
     private TextWatcher mTextWatcher;
     private int preLength;
@@ -68,8 +68,9 @@ public class XEditText extends AppCompatEditText {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.XEditText, defStyleAttr, 0);
 
         separator = a.getString(R.styleable.XEditText_x_separator);
-        if (separator == null)
+        if (separator == null) {
             separator = "";
+        }
         customizeMarkerEnable = a.getBoolean(R.styleable.XEditText_x_customizeMarkerEnable, false);
         int which = a.getInt(R.styleable.XEditText_x_showMarkerTime, 0);
         switch (which) {
@@ -91,8 +92,9 @@ public class XEditText extends AppCompatEditText {
     }
 
     private void init() {
-        if (getInputType() == InputType.TYPE_CLASS_NUMBER) // if inputType="number", it can't insert separator.
+        if (getInputType() == InputType.TYPE_CLASS_NUMBER) { // if inputType="number", it can't insert separator.
             setInputType(InputType.TYPE_CLASS_PHONE);
+        }
 
         mTextWatcher = new MyTextWatcher();
         this.addTextChangedListener(mTextWatcher);
@@ -103,8 +105,7 @@ public class XEditText extends AppCompatEditText {
             setHasNoSeparator(true);
         }
         if (mRightMarkerDrawable == null) { // didn't customize Marker
-            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(),
-                    R.drawable.abc_ic_clear_mtrl_alpha); // from support v4
+            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.x_ic_clear);
             DrawableCompat.setTint(mRightMarkerDrawable, getCurrentHintTextColor());
             if (mRightMarkerDrawable != null) {
                 mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(),
@@ -121,10 +122,12 @@ public class XEditText extends AppCompatEditText {
             }
         });
 
-        if (iOSStyleEnable)
+        if (iOSStyleEnable) {
             initiOSObjects();
-        if (disableEmoji)
+        }
+        if (disableEmoji) {
             setFilters(new InputFilter[]{new EmojiExcludeFilter()});
+        }
     }
 
     private void initiOSObjects() {
@@ -162,13 +165,15 @@ public class XEditText extends AppCompatEditText {
         super.onDraw(canvas);
 
         if (iOSStyleEnable) {
-            if (iOSFrameHide)
+            if (iOSFrameHide) {
                 return;
+            }
 
             if (mHintCharSeq != null) {
-                Paint.FontMetricsInt fontMetrics = mTextPaint.getFontMetricsInt();
-                int textCenterY = (mRect.bottom + mRect.top - fontMetrics.bottom - fontMetrics.top) / 2 - 5;
-                canvas.drawText(mHintCharSeq.toString(), canvas.getWidth() / 2, canvas.getHeight() / 2 + textCenterY, mTextPaint);
+                Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
+                float textCenterY = (-fontMetrics.ascent - fontMetrics.descent) / 2.0f;
+                canvas.drawText(mHintCharSeq.toString(), canvas.getWidth() / 2.0f,
+                        canvas.getHeight() / 2.0f + textCenterY, mTextPaint);
             }
             if (mBitmap != null) {
                 canvas.drawBitmap(mBitmap,
@@ -185,17 +190,16 @@ public class XEditText extends AppCompatEditText {
     public boolean onTouchEvent(MotionEvent event) {
         if (hasFocused && mRightMarkerDrawable != null && event.getAction() == MotionEvent.ACTION_UP) {
             Rect rect = mRightMarkerDrawable.getBounds();
-            int height = rect.height();
-            int rectTopY = (getHeight() - height) / 2;
+            int rectH = rect.height();
+            int rectTopY = (getHeight() - rectH) / 2;
             boolean isAreaX = event.getX() >= (getWidth() - getTotalPaddingRight()) &&
                     event.getX() <= (getWidth() - getPaddingRight());
-            boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + height);
+            boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + rectH);
             if (isAreaX && isAreaY) {
                 if (customizeMarkerEnable) {
-                    hideInputMethod();
-                    if (mMarkerClickListener != null)
+                    if (mMarkerClickListener != null) {
                         mMarkerClickListener.onMarkerClick(event.getRawX(), event.getRawY());
-
+                    }
                     return true;
                 } else {
                     setError(null);
@@ -233,8 +237,9 @@ public class XEditText extends AppCompatEditText {
         for (int i = 0; i < pattern.length; i++) {
             sum += pattern[i];
             intervals[i] = sum + count;
-            if (i < pattern.length - 1)
+            if (i < pattern.length - 1) {
                 count += separator.length();
+            }
         }
         mMaxLength = intervals[intervals.length - 1];
     }
@@ -265,8 +270,9 @@ public class XEditText extends AppCompatEditText {
      * set CharSequence to separate
      */
     public void setTextToSeparate(CharSequence c) {
-        if (c == null || c.length() == 0)
+        if (c == null || c.length() == 0) {
             return;
+        }
 
         setText("");
         for (int i = 0; i < c.length(); i++) {
@@ -315,8 +321,9 @@ public class XEditText extends AppCompatEditText {
      */
     public void setHasNoSeparator(boolean hasNoSeparator) {
         this.hasNoSeparator = hasNoSeparator;
-        if (hasNoSeparator)
+        if (hasNoSeparator) {
             separator = "";
+        }
     }
 
     /**
@@ -344,17 +351,18 @@ public class XEditText extends AppCompatEditText {
      */
     public void setDisableEmoji(boolean disableEmoji) {
         this.disableEmoji = disableEmoji;
-        if (disableEmoji)
+        if (disableEmoji) {
             setFilters(new InputFilter[]{new EmojiExcludeFilter()});
-        else
+        } else {
             setFilters(new InputFilter[0]);
+        }
     }
 
     /**
      * the same as EditText.addOnTextChangeListener(TextWatcher textWatcher)
      */
-    public void setOnTextChangeListener(OnTextChangeListener listener) {
-        this.mTextChangeListener = listener;
+    public void setOnXTextChangeListener(OnXTextChangeListener listener) {
+        this.mXTextChangeListener = listener;
     }
 
     /**
@@ -376,24 +384,28 @@ public class XEditText extends AppCompatEditText {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             preLength = s.length();
-            if (mTextChangeListener != null)
-                mTextChangeListener.beforeTextChanged(s, start, count, after);
+            if (mXTextChangeListener != null) {
+                mXTextChangeListener.beforeTextChanged(s, start, count, after);
+            }
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (mTextChangeListener != null)
-                mTextChangeListener.onTextChanged(s, start, before, count);
+            if (mXTextChangeListener != null) {
+                mXTextChangeListener.onTextChanged(s, start, before, count);
+            }
         }
 
         @Override
         public void afterTextChanged(Editable s) {
-            if (mTextChangeListener != null)
-                mTextChangeListener.afterTextChanged(s);
+            if (mXTextChangeListener != null) {
+                mXTextChangeListener.afterTextChanged(s);
+            }
 
             currLength = s.length();
-            if (hasNoSeparator)
+            if (hasNoSeparator) {
                 mMaxLength = currLength;
+            }
 
             markerFocusChangeLogic();
 
@@ -401,8 +413,9 @@ public class XEditText extends AppCompatEditText {
                 getText().delete(currLength - 1, currLength);
                 return;
             }
-            if (pattern == null)
+            if (pattern == null) {
                 return;
+            }
 
             for (int i = 0; i < pattern.length; i++) {
                 if (currLength - 1 == intervals[i]) {
@@ -434,13 +447,18 @@ public class XEditText extends AppCompatEditText {
         switch (mShowMarkerTime) {
             case ALWAYS:
                 drawable = mRightMarkerDrawable;
+
                 break;
             case BEFORE_INPUT:
-                if (currLength == 0) drawable = mRightMarkerDrawable;
+                if (currLength == 0) {
+                    drawable = mRightMarkerDrawable;
+                }
 
                 break;
             case AFTER_INPUT:
-                if (currLength > 0) drawable = mRightMarkerDrawable;
+                if (currLength > 0) {
+                    drawable = mRightMarkerDrawable;
+                }
 
                 break;
         }
@@ -449,14 +467,17 @@ public class XEditText extends AppCompatEditText {
     }
 
     private void iOSFocusChangeLogic() {
-        if (!iOSStyleEnable)
+        if (!iOSStyleEnable) {
             return;
+        }
         if (hasFocused) {
-            if (mLeftDrawable != null)
+            if (mLeftDrawable != null) {
                 setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
                         getCompoundDrawables()[2], getCompoundDrawables()[3]);
-            if (mHintCharSeq != null)
+            }
+            if (mHintCharSeq != null) {
                 setHint(mHintCharSeq);
+            }
             iOSFrameHide = true;
             invalidate();
         } else {
@@ -467,7 +488,7 @@ public class XEditText extends AppCompatEditText {
         }
     }
 
-    public interface OnTextChangeListener {
+    public interface OnXTextChangeListener {
 
         void beforeTextChanged(CharSequence s, int start, int count, int after);
 

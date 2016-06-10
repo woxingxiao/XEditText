@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         defaultXEdit.setMaxLength(20); //set max length of contents
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
-        clearXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
+        clearXEdit.setOnXTextChangeListener(new XEditText.OnXTextChangeListener() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 textView1.setText(clearXEdit.getNonSeparatorText());
             }
         });
-        customXEdit.setOnTextChangeListener(new XEditText.OnTextChangeListener() {
+        customXEdit.setOnXTextChangeListener(new XEditText.OnXTextChangeListener() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
