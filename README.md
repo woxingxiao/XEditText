@@ -16,7 +16,7 @@
 ###Gradle
 ```groovy
 dependencies{
-    compile 'com.xw.repo:xedittext:1.0.5@aar'
+    compile 'com.xw.repo:xedittext:1.0.6@aar'
 }
 ```
 
