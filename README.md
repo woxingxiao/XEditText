@@ -5,7 +5,7 @@
 ##What can I do ?
 - Deleting function is available. Click the `drawableRight` icon to clear all contents.
 - Insert **separator** automatically during inputting. You can customize the **separator** whatever you want (`""`,  `-`, etc.). But you have to set **pattern**, which is kind of a rule you are going to separate the contents.
-- Can disable **Emoji** input easily. You don't need to exclude the **Emoji** by yourself in codes anymore. <img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/><img src="https://s.tylingsoft.com/emoji-icons/stuck_out_tongue_winking_eye.png" width="18"/>
+- Can disable **Emoji** input easily. You don't need to exclude the **Emoji** by yourself in codes anymore. 
 - `drawableRight` icon, which be called **Marker**, can also be customized. When you do that, for example, you can turn it as an input tips option with a `PopUpWindow` by listening to the **Marker**'s `onMarkerClickListener`.
 - iOS style is available. `drawableLeft` and `hint` are both at the center of `EditText` when it has not be focused.
 
@@ -50,3 +50,28 @@ setOnMarkerClickListener(OnMarkerClickListener markerClickListener)|listen to **
 setShowMarkerTime(ShowMarkerTime showMarkerTime)|set when the **Marker** shows.
 setiOSStyleEnable(boolean iOSStyleEnable)|enable **iOS style** or not.
 setMaxLength(int maxLength)|set max length of contents.
+
+###License
+```
+The MIT License (MIT)
+
+Copyright (c) 2016 woxingxiao
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
