@@ -6,10 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -34,7 +35,6 @@ public class XEditText extends AppCompatEditText {
     private int preLength;
     private int currLength;
     private Drawable mRightMarkerDrawable;
-    private Drawable mLeftDrawable;
     private boolean hasFocused;
     private int[] pattern; // pattern to separate. e.g.: separator = "-", pattern = [3,4,4] -> xxx-xxxx-xxxx
     private int[] intervals; // indexes of separators.
@@ -45,15 +45,13 @@ public class XEditText extends AppCompatEditText {
     private boolean hasNoSeparator; // true, the same as EditText.
     private boolean customizeMarkerEnable; // true, you can customize the Marker's onClick event.
     private ShowMarkerTime mShowMarkerTime; // set when ths Marker shows，after inputted by default.
-    private Paint mTextPaint;
-    private Rect mRect;
-    private Rect mTextRect;
-    private Bitmap mBitmap;
     private Paint mBitPaint;
-    private boolean iOSStyleEnable; // iOS style，to set this, you should combine 'shape.xml' to set frame.
-    private boolean iOSFrameHide;
-    private CharSequence mHintCharSeq;
     private boolean disableEmoji; // disable emoji and some special symbol input.
+    private boolean isPwdType;
+    private boolean isPwdShow;
+    private Drawable mTogglePwdDrawable;
+    private Bitmap mBitmap1;
+    private Bitmap mBitmap2;
 
     public XEditText(Context context) {
         this(context, null);
@@ -84,17 +82,51 @@ public class XEditText extends AppCompatEditText {
                 mShowMarkerTime = ShowMarkerTime.ALWAYS;
                 break;
         }
-        iOSStyleEnable = a.getBoolean(R.styleable.XEditText_x_iOSStyleEnable, false);
         disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
+
+        int inputType = getInputType();
+        if (inputType == 129) {
+
+            isPwdType = true;
+            int sdId = a.getInteger(R.styleable.XEditText_x_showPwdDrawable, -1);
+            int hdId = a.getInteger(R.styleable.XEditText_x_hidePwdDrawable, -1);
+
+            if (sdId == -1)
+                sdId = R.drawable.x_et_svg_ic_show_password_24dp;
+            mTogglePwdDrawable = ContextCompat.getDrawable(context, sdId);
+            mBitmap1 = getBitmapFromVectorDrawable(context, sdId);
+
+            if (hdId == -1)
+                hdId = R.drawable.x_et_svg_ic_clear_24dp;
+            mBitmap2 = getBitmapFromVectorDrawable(context, hdId);
+        }
+
         a.recycle();
 
         init();
+    }
+
+    private Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
+        Drawable drawable = AppCompatDrawableManager.get().getDrawable(context, drawableId);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 
     private void init() {
         if (getInputType() == InputType.TYPE_CLASS_NUMBER) { // if inputType="number", it can't insert separator.
             setInputType(InputType.TYPE_CLASS_PHONE);
         }
+        mBitPaint = new Paint();
+        mBitPaint.setAntiAlias(true);
 
         mTextWatcher = new MyTextWatcher();
         this.addTextChangedListener(mTextWatcher);
@@ -105,7 +137,7 @@ public class XEditText extends AppCompatEditText {
             setHasNoSeparator(true);
         }
         if (mRightMarkerDrawable == null) { // didn't customize Marker
-            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.x_ic_clear);
+            mRightMarkerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.x_et_svg_ic_clear_24dp);
             DrawableCompat.setTint(mRightMarkerDrawable, getCurrentHintTextColor());
             if (mRightMarkerDrawable != null) {
                 mRightMarkerDrawable.setBounds(0, 0, mRightMarkerDrawable.getIntrinsicWidth(),
@@ -118,68 +150,25 @@ public class XEditText extends AppCompatEditText {
             public void onFocusChange(View v, boolean hasFocus) {
                 hasFocused = hasFocus;
                 markerFocusChangeLogic();
-                iOSFocusChangeLogic();
             }
         });
 
-        if (iOSStyleEnable) {
-            initiOSObjects();
-        }
         if (disableEmoji) {
             setFilters(new InputFilter[]{new EmojiExcludeFilter()});
         }
-    }
-
-    private void initiOSObjects() {
-        mLeftDrawable = getCompoundDrawables()[0];
-        if (mLeftDrawable != null) {
-            if (mBitmap == null || mBitPaint == null) {
-                BitmapDrawable bd = (BitmapDrawable) mLeftDrawable;
-                mBitmap = bd.getBitmap();
-                mBitPaint = new Paint();
-                mBitPaint.setAntiAlias(true);
-            }
-
-            setCompoundDrawables(null, getCompoundDrawables()[1],
-                    getCompoundDrawables()[2], getCompoundDrawables()[3]);
-        }
-        mHintCharSeq = getHint();
-        if (mHintCharSeq != null) {
-            setHint("");
-            if (mRect == null || mTextRect == null || mTextPaint == null) {
-                mRect = new Rect(getLeft(), getTop(), getWidth(), getHeight());
-                mTextRect = new Rect();
-                mTextPaint = new Paint();
-                mTextPaint.setAntiAlias(true);
-                mTextPaint.setTextSize(getTextSize());
-                mTextPaint.setColor(getCurrentHintTextColor());
-                mTextPaint.setTextAlign(Paint.Align.CENTER);
-                mTextPaint.getTextBounds(mHintCharSeq.toString(), 0, mHintCharSeq.length(), mTextRect);
-            }
-        }
-        iOSFrameHide = false;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (iOSStyleEnable) {
-            if (iOSFrameHide) {
-                return;
-            }
+        if (isPwdType) {
+            float left = getWidth() - getPaddingLeft() - getPaddingRight();
+            left -= mBitmap1.getWidth() - getCompoundDrawablePadding();
+            canvas.drawBitmap(mBitmap1, left, getPaddingTop(), mBitPaint);
 
-            if (mHintCharSeq != null) {
-                Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-                float textCenterY = (-fontMetrics.ascent - fontMetrics.descent) / 2.0f;
-                canvas.drawText(mHintCharSeq.toString(), canvas.getWidth() / 2.0f,
-                        canvas.getHeight() / 2.0f + textCenterY, mTextPaint);
-            }
-            if (mBitmap != null) {
-                canvas.drawBitmap(mBitmap,
-                        (canvas.getWidth() - mTextRect.width()) / 2 - mBitmap.getWidth() - getCompoundDrawablePadding(),
-                        (canvas.getHeight() - mBitmap.getHeight()) / 2, mBitPaint);
-            }
+            left -= mBitmap2.getWidth();
+            canvas.drawBitmap(mBitmap2, left, getPaddingTop(), mBitPaint);
         }
     }
 
@@ -188,6 +177,8 @@ public class XEditText extends AppCompatEditText {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        boolean touch = false;
+
         if (hasFocused && mRightMarkerDrawable != null && event.getAction() == MotionEvent.ACTION_UP) {
             Rect rect = mRightMarkerDrawable.getBounds();
             int rectH = rect.height();
@@ -200,14 +191,30 @@ public class XEditText extends AppCompatEditText {
                     if (mMarkerClickListener != null) {
                         mMarkerClickListener.onMarkerClick(event.getRawX(), event.getRawY());
                     }
-                    return true;
+                    touch = true;
                 } else {
                     setError(null);
                     setText("");
                 }
             }
         }
-        return super.onTouchEvent(event);
+        if (hasFocused && isPwdType && event.getAction() == MotionEvent.ACTION_UP) {
+            int w = mTogglePwdDrawable.getIntrinsicWidth();
+            int h = mTogglePwdDrawable.getIntrinsicHeight();
+            int rectTopY = (getHeight() - h) / 2;
+            boolean isAreaX = event.getX() <= (getWidth() - getTotalPaddingRight()) &&
+                    event.getX() >= (getWidth() - getTotalPaddingRight() - w);
+            boolean isAreaY = event.getY() >= rectTopY && event.getY() <= (rectTopY + h);
+            if (isAreaX && isAreaY) {
+                isPwdShow = !isPwdShow;
+                mBitmap1 = getBitmapFromVectorDrawable(getContext(), isPwdShow ?
+                        R.drawable.x_et_svg_ic_show_password_24dp : R.drawable.x_et_svg_ic_hide_password_24dp);
+
+                invalidate();
+            }
+        }
+
+        return touch || super.onTouchEvent(event);
     }
 
     /**
@@ -324,23 +331,6 @@ public class XEditText extends AppCompatEditText {
         if (hasNoSeparator) {
             separator = "";
         }
-    }
-
-    /**
-     * @param iOSStyleEnable true: enable iOS style;
-     *                       false: disable iOS style
-     */
-    public void setiOSStyleEnable(boolean iOSStyleEnable) {
-        this.iOSStyleEnable = iOSStyleEnable;
-        if (iOSStyleEnable) {
-            initiOSObjects();
-        } else {
-            setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
-                    getCompoundDrawables()[2], getCompoundDrawables()[3]);
-            setHint(mHintCharSeq);
-            iOSFrameHide = true;
-        }
-        invalidate();
     }
 
     /**
@@ -464,28 +454,6 @@ public class XEditText extends AppCompatEditText {
         }
         setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                 drawable, getCompoundDrawables()[3]);
-    }
-
-    private void iOSFocusChangeLogic() {
-        if (!iOSStyleEnable) {
-            return;
-        }
-        if (hasFocused) {
-            if (mLeftDrawable != null) {
-                setCompoundDrawables(mLeftDrawable, getCompoundDrawables()[1],
-                        getCompoundDrawables()[2], getCompoundDrawables()[3]);
-            }
-            if (mHintCharSeq != null) {
-                setHint(mHintCharSeq);
-            }
-            iOSFrameHide = true;
-            invalidate();
-        } else {
-            if (currLength == 0) {
-                initiOSObjects();
-                invalidate();
-            }
-        }
     }
 
     public interface OnXTextChangeListener {

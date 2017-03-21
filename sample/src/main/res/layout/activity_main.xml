@@ -91,18 +91,6 @@
             app:x_showMarkerTime="always"/>
 
         <com.xw.repo.xedittext.XEditText
-            android:id="@+id/ios_style_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/shape_corner_gray_bg"
-            android:drawableLeft="@drawable/icon_search"
-            android:drawablePadding="5dp"
-            android:hint="search"
-            android:padding="5dp"
-            app:x_iOSStyleEnable="true"/>
-
-        <com.xw.repo.xedittext.XEditText
             android:id="@+id/enable_emoji_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
