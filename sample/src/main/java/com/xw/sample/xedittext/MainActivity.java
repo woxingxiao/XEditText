@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.xw.repo.xedittext.XEditText;
+import com.xw.repo.XEditText;
 
 
 public class MainActivity extends AppCompatActivity {

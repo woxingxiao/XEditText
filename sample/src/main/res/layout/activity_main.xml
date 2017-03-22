@@ -14,19 +14,19 @@
         android:orientation="vertical"
         android:paddingBottom="60dp">
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:id="@+id/default_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="default, just likes EditText"
             app:x_disableClear="true"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="clear drawable"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:id="@+id/clear_marker_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             android:layout_marginLeft="5dp"
             android:textColor="#1976d2"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="pwd input, custom drawables"
@@ -49,7 +49,7 @@
             app:x_hidePwdDrawable="@mipmap/ic_hide"
             app:x_showPwdDrawable="@mipmap/ic_show"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:id="@+id/custom_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,13 +71,13 @@
             android:layout_height="wrap_content"
             android:text="separate:13800000000"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:id="@+id/show_separator_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="normal String separate to pattern"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:id="@+id/enable_emoji_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
             android:hint="enable emoji inputting"
             app:x_disableEmoji="false"/>
 
-        <com.xw.repo.xedittext.XEditText
+        <com.xw.repo.XEditText
             android:id="@+id/disable_emoji_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

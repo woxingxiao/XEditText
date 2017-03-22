@@ -1,5 +1,5 @@
 <manifest
-    package="com.xw.repo.xedittext"
+    package="com.xw.repo"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application

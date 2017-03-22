@@ -1,4 +1,4 @@
-package com.xw.repo.xedittext;
+package com.xw.repo;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -27,8 +27,9 @@ import android.view.View;
 
 /**
  * XEditText
- * Created by woxingxiao on 2015/9/4.
  * Github: https://github.com/woxingxiao/XEditText
+ * <><p/>
+ * Created by woxingxiao on 2017-03-22.
  */
 public class XEditText extends AppCompatEditText {
 
@@ -334,7 +335,7 @@ public class XEditText extends AppCompatEditText {
     /**
      * set customize pattern
      *
-     * @param pattern e.g. pattern:{4,4,4,4}, mSeparator:"-"  ===>  xxxx-xxxx-xxxx-xxxx
+     * @param pattern e.g. pattern:{4,4,4,4}, mSeparator:"-" to xxxx-xxxx-xxxx-xxxx
      */
     public void setPattern(int[] pattern) {
         if (pattern == null) {
