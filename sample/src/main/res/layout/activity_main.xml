@@ -18,13 +18,20 @@
             android:id="@+id/default_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="default, same as EditText totally"/>
+            android:hint="default, just likes EditText"
+            app:x_disableClear="true"/>
+
+        <com.xw.repo.xedittext.XEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="clear drawable"/>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/clear_marker_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="click right icon to clear contents"/>
+            android:hint="default password input"
+            android:inputType="textPassword"/>
 
         <TextView
             android:id="@+id/text1"
@@ -32,6 +39,15 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:textColor="#1976d2"/>
+
+        <com.xw.repo.xedittext.XEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="pwd input, custom drawables"
+            android:inputType="textPassword"
+            app:x_clearDrawable="@mipmap/ic_clear"
+            app:x_hidePwdDrawable="@mipmap/ic_hide"
+            app:x_showPwdDrawable="@mipmap/ic_show"/>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/custom_edit_text"
@@ -60,35 +76,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="normal String separate to pattern"/>
-
-        <com.xw.repo.xedittext.XEditText
-            android:id="@+id/custom_marker_edit_text1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:drawableRight="@drawable/icon_tips"
-            android:gravity="center_vertical"
-            android:hint="cus-Marker shows after inputting"/>
-
-        <com.xw.repo.xedittext.XEditText
-            android:id="@+id/custom_marker_edit_text2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableRight="@drawable/icon_tips"
-            android:gravity="center_vertical"
-            android:hint="cus-Marker shows before inputting"
-            app:x_customizeMarkerEnable="true"
-            app:x_showMarkerTime="before_input"/>
-
-        <com.xw.repo.xedittext.XEditText
-            android:id="@+id/custom_marker_edit_text3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableRight="@drawable/icon_tips"
-            android:gravity="center_vertical"
-            android:hint="cus-Marker shows once having focus"
-            app:x_customizeMarkerEnable="true"
-            app:x_showMarkerTime="always"/>
 
         <com.xw.repo.xedittext.XEditText
             android:id="@+id/enable_emoji_edit_text"

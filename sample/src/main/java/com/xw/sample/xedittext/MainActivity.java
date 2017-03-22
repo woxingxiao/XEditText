@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
     private XEditText clearXEdit;
     private XEditText customXEdit;
     private XEditText showXEdit;
-    private XEditText customMarkerEdit1;
     private TextView textView1, textView2;
 
     @Override
@@ -28,12 +27,10 @@ public class MainActivity extends AppCompatActivity {
         clearXEdit = (XEditText) findViewById(R.id.clear_marker_edit_text);
         customXEdit = (XEditText) findViewById(R.id.custom_edit_text);
         showXEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
-        customMarkerEdit1 = (XEditText) findViewById(R.id.custom_marker_edit_text1);
         textView1 = (TextView) findViewById(R.id.text1);
         textView2 = (TextView) findViewById(R.id.text2);
         Button button = (Button) findViewById(R.id.show_pattern_btn);
 
-        defaultXEdit.setRightMarkerDrawable(null); // hide clear icon
         defaultXEdit.setMaxLength(20); //set max length of contents
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
@@ -80,15 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
-        customMarkerEdit1.setCustomizeMarkerEnable(true);
-        customMarkerEdit1.setOnMarkerClickListener(new XEditText.OnMarkerClickListener() {
-            @Override
-            public void onMarkerClick(float x, float y) {
-                new MarkerPopWindow(MainActivity.this, customMarkerEdit1, (int) x, (int) y);
-            }
-        });
-
     }
 
 }
