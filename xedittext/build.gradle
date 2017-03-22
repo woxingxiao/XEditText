@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 
+def VERSION_NAME = "2.0.0"
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -8,7 +10,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 25
         versionCode 9
-        versionName "2.0.0"
+        versionName VERSION_NAME
     }
     buildTypes {
         release {
@@ -23,4 +25,14 @@ android {
 
 dependencies {
     provided 'com.android.support:appcompat-v7:25.3.0'
+}
+
+apply plugin: 'com.novoda.bintray-release'
+publish {
+    userOrg = 'woxingxiao'
+    groupId = 'com.xw.repo'
+    artifactId = 'xedittext'
+    publishVersion = VERSION_NAME
+    desc = 'A useful Android custom edittext widget.'
+    website = 'https://github.com/woxingxiao/XEditText'
 }
