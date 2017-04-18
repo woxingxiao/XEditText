@@ -1,5 +1,7 @@
 package com.xw.repo;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -230,6 +232,22 @@ public class XEditText extends AppCompatEditText {
         }
 
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onTextContextMenuItem(int id) {
+        if (id == 16908322) { // catch paste ops
+            ClipboardManager clipboard =
+                    (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = clipboard.getPrimaryClip();
+            ClipData.Item item = clip.getItemAt(0);
+            if (item != null && item.getText() != null && item.getText().length() > 0) {
+                setTextToSeparate(item.getText());
+                return true;
+            }
+        }
+
+        return super.onTextContextMenuItem(id);
     }
 
     // =========================== MyTextWatcher ================================
