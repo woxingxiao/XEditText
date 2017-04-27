@@ -3,6 +3,12 @@
 # XEditText
 Wrapped common usage of `EditText`.
 
+## Features
+- To clear all text content just by one click on the right. The clear drawable is customizable.
+- Perfectly fit for password input scenario. The toggle drawable is also customizable.
+- You can customize the **Separator** or **Pattern** to separate the text content. But the text content by COPY, CUT, and PASTE will no longer be affected by **Separator** or **Pattern** you set.
+- Be able to disable Emoji input.
+
 ## Screenshot
 ***
 ![demo1](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo1.gif) ![demo2](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo2.gif)
@@ -12,7 +18,7 @@ Wrapped common usage of `EditText`.
 ## Gradle
 ```groovy
     dependencies{
-        // 'com.xw.repo:xedittext:2.0.0@aar'
+        //e.g. 'com.xw.repo:xedittext:2.0.2@aar'
         compile 'com.xw.repo:xedittext:${LATEST_VERSION}@aar'
     }
 ```
