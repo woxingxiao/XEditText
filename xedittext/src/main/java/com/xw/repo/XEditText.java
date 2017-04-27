@@ -236,13 +236,27 @@ public class XEditText extends AppCompatEditText {
 
     @Override
     public boolean onTextContextMenuItem(int id) {
-        if (id == 16908322) { // catch paste ops
-            ClipboardManager clipboard =
-                    (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = clipboard.getPrimaryClip();
+        ClipboardManager clipboardManager = (ClipboardManager) getContext()
+                .getSystemService(Context.CLIPBOARD_SERVICE);
+
+        if (id == 16908320 || id == 16908321) { // catch CUT or COPY ops
+            super.onTextContextMenuItem(id);
+
+            ClipData clip = clipboardManager.getPrimaryClip();
             ClipData.Item item = clip.getItemAt(0);
-            if (item != null && item.getText() != null && item.getText().length() > 0) {
-                setTextToSeparate(item.getText());
+            if (item != null && item.getText() != null) {
+                String s = item.getText().toString().replace(mSeparator, "");
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, s));
+
+                return true;
+            }
+
+        } else if (id == 16908322) { // catch PASTE ops
+            ClipData clip = clipboardManager.getPrimaryClip();
+            ClipData.Item item = clip.getItemAt(0);
+            if (item != null && item.getText() != null) {
+                setTextToSeparate((getText().toString() + item.getText().toString()).replace(mSeparator, ""));
+
                 return true;
             }
         }
