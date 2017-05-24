@@ -12,7 +12,6 @@ import com.xw.repo.XEditText;
 
 public class MainActivity extends AppCompatActivity {
 
-    private XEditText defaultXEdit;
     private XEditText clearXEdit;
     private XEditText customXEdit;
     private XEditText showXEdit;
@@ -23,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        defaultXEdit = (XEditText) findViewById(R.id.default_edit_text);
         clearXEdit = (XEditText) findViewById(R.id.clear_marker_edit_text);
         customXEdit = (XEditText) findViewById(R.id.custom_edit_text);
         showXEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
@@ -31,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         textView2 = (TextView) findViewById(R.id.text2);
         Button button = (Button) findViewById(R.id.show_pattern_btn);
 
-        defaultXEdit.setMaxLength(20); //set max length of contents
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
         clearXEdit.setOnXTextChangeListener(new XEditText.OnXTextChangeListener() {
