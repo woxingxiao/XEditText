@@ -11,6 +11,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
@@ -40,9 +43,9 @@ public class XEditText extends AppCompatEditText {
     private Drawable mClearDrawable;
     private Drawable mTogglePwdDrawable;
     private boolean disableEmoji; // disable emoji and some special symbol input.
-
     private int mShowPwdResId;
     private int mHidePwdResId;
+
     private OnXTextChangeListener mXTextChangeListener;
     private TextWatcher mTextWatcher;
     private int mPreLength;
@@ -116,7 +119,7 @@ public class XEditText extends AppCompatEditText {
         if (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225) {
             isPwdInputType = true;
             isPwdShow = inputType == 145;
-            setMaxLength(20);
+            mMaxLength = 20;
             mPaint = new Paint();
             mPaint.setAntiAlias(true);
 
@@ -355,24 +358,29 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * set customize mSeparator
+     * set customize separator
      */
-    public void setSeparator(String separator) {
-        if (separator == null) {
-            throw new IllegalArgumentException("mSeparator can't be null !");
-        }
+    public void setSeparator(@NonNull String separator) {
         this.mSeparator = separator;
     }
 
     /**
      * set customize pattern
      *
-     * @param pattern e.g. pattern:{4,4,4,4}, mSeparator:"-" to xxxx-xxxx-xxxx-xxxx
+     * @param pattern   e.g. pattern:{4,4,4,4}, separator:"-" to xxxx-xxxx-xxxx-xxxx
+     * @param separator separator
      */
-    public void setPattern(int[] pattern) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("pattern can't be null !");
-        }
+    public void setPattern(@NonNull int[] pattern, @NonNull String separator) {
+        setSeparator(separator);
+        setPattern(pattern);
+    }
+
+    /**
+     * set customize pattern
+     *
+     * @param pattern e.g. pattern:{4,4,4,4}, separator:"-" to xxxx-xxxx-xxxx-xxxx
+     */
+    public void setPattern(@NonNull int[] pattern) {
         this.pattern = pattern;
 
         intervals = new int[pattern.length];
@@ -386,13 +394,17 @@ public class XEditText extends AppCompatEditText {
             }
         }
         mMaxLength = intervals[intervals.length - 1];
+
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = new InputFilter.LengthFilter(mMaxLength);
+        setFilters(filters);
     }
 
     /**
      * set CharSequence to separate
      */
-    public void setTextToSeparate(CharSequence c) {
-        if (c == null || c.length() == 0) {
+    public void setTextToSeparate(@NonNull CharSequence c) {
+        if (c.length() == 0) {
             return;
         }
 
@@ -410,14 +422,14 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * @return has mSeparator or not
+     * @return has separator or not
      */
     public boolean hasNoSeparator() {
         return hasNoSeparator;
     }
 
     /**
-     * @param hasNoSeparator true, has no mSeparator, the same as EditText
+     * @param hasNoSeparator true, has no separator, the same as EditText
      */
     public void setHasNoSeparator(boolean hasNoSeparator) {
         this.hasNoSeparator = hasNoSeparator;
@@ -448,13 +460,6 @@ public class XEditText extends AppCompatEditText {
         this.mXTextChangeListener = listener;
     }
 
-    /**
-     * set max length of contents
-     */
-    public void setMaxLength(int maxLength) {
-        this.mMaxLength = maxLength;
-    }
-
     public interface OnXTextChangeListener {
 
         void beforeTextChanged(CharSequence s, int start, int count, int after);
@@ -462,6 +467,36 @@ public class XEditText extends AppCompatEditText {
         void onTextChanged(CharSequence s, int start, int before, int count);
 
         void afterTextChanged(Editable s);
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("save_instance", super.onSaveInstanceState());
+        bundle.putString("separator", mSeparator);
+        bundle.putIntArray("pattern", pattern);
+        bundle.putBoolean("hasNoSeparator", hasNoSeparator);
+
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            mSeparator = bundle.getString("separator");
+            pattern = bundle.getIntArray("pattern");
+            hasNoSeparator = bundle.getBoolean("hasNoSeparator");
+
+            if (pattern != null) {
+                setPattern(pattern);
+            }
+            super.onRestoreInstanceState(bundle.getParcelable("save_instance"));
+
+            return;
+        }
+
+        super.onRestoreInstanceState(state);
     }
 
     /**
