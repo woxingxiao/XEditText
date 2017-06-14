@@ -142,8 +142,10 @@ public class XEditText extends AppCompatEditText {
             int cdId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
             if (cdId == -1)
                 cdId = R.drawable.x_et_svg_ic_clear_24dp;
-            mBitmap = getBitmapFromVectorDrawable(context, cdId,
-                    cdId == R.drawable.x_et_svg_ic_clear_24dp); // clearDrawable
+            if (!disableClear) {
+                mBitmap = getBitmapFromVectorDrawable(context, cdId,
+                        cdId == R.drawable.x_et_svg_ic_clear_24dp); // clearDrawable
+            }
         }
 
         disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
@@ -172,7 +174,7 @@ public class XEditText extends AppCompatEditText {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (hasFocused && isPwdInputType && !isTextEmpty()) {
+        if (hasFocused && mBitmap != null && isPwdInputType && !isTextEmpty()) {
             int left = getMeasuredWidth() - getPaddingRight() - getCompoundDrawablePadding() -
                     mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - dp2px(4);
             int top = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
@@ -212,11 +214,13 @@ public class XEditText extends AppCompatEditText {
                 invalidate();
             }
 
-            right -= w + dp2px(4);
-            isAreaX = event.getX() <= right && event.getX() >= right - mBitmap.getWidth();
-            if (isAreaX && isAreaY) {
-                setError(null);
-                setText("");
+            if (!disableClear) {
+                right -= w + dp2px(4);
+                isAreaX = event.getX() <= right && event.getX() >= right - mBitmap.getWidth();
+                if (isAreaX && isAreaY) {
+                    setError(null);
+                    setText("");
+                }
             }
         }
 
