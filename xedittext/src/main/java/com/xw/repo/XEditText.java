@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -33,7 +32,7 @@ import android.view.View;
 /**
  * XEditText
  * Github: https://github.com/woxingxiao/XEditText
- * <><p/>
+ * <p/>
  * Created by woxingxiao on 2017-03-22.
  */
 public class XEditText extends AppCompatEditText {
@@ -59,7 +58,6 @@ public class XEditText extends AppCompatEditText {
     private boolean isPwdInputType;
     private boolean isPwdShow;
     private Bitmap mBitmap;
-    private Paint mPaint;
 
     public XEditText(Context context) {
         this(context, null);
@@ -74,10 +72,6 @@ public class XEditText extends AppCompatEditText {
 
         initAttrs(context, attrs, defStyleAttr);
 
-        int inputType = getInputType();
-        if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
-            setInputType(InputType.TYPE_CLASS_PHONE);
-        }
         if (disableEmoji) {
             setFilters(new InputFilter[]{new EmojiExcludeFilter()});
         }
@@ -101,6 +95,12 @@ public class XEditText extends AppCompatEditText {
         if (mSeparator == null) {
             mSeparator = "";
         }
+        if (mSeparator.length() > 0) {
+            int inputType = getInputType();
+            if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
+                setInputType(InputType.TYPE_CLASS_PHONE);
+            }
+        }
 
         disableClear = a.getBoolean(R.styleable.XEditText_x_disableClear, false);
 
@@ -120,8 +120,6 @@ public class XEditText extends AppCompatEditText {
             isPwdInputType = true;
             isPwdShow = inputType == 145;
             mMaxLength = 20;
-            mPaint = new Paint();
-            mPaint.setAntiAlias(true);
 
             mShowPwdResId = a.getResourceId(R.styleable.XEditText_x_showPwdDrawable, -1);
             mHidePwdResId = a.getResourceId(R.styleable.XEditText_x_hidePwdDrawable, -1);
@@ -178,7 +176,7 @@ public class XEditText extends AppCompatEditText {
             int left = getMeasuredWidth() - getPaddingRight() - getCompoundDrawablePadding() -
                     mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - dp2px(4);
             int top = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
-            canvas.drawBitmap(mBitmap, left, top, mPaint);
+            canvas.drawBitmap(mBitmap, left, top, null);
         }
     }
 
@@ -366,6 +364,13 @@ public class XEditText extends AppCompatEditText {
      */
     public void setSeparator(@NonNull String separator) {
         this.mSeparator = separator;
+
+        if (mSeparator.length() > 0) {
+            int inputType = getInputType();
+            if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
+                setInputType(InputType.TYPE_CLASS_PHONE);
+            }
+        }
     }
 
     /**
@@ -419,10 +424,24 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * get text without separators
+     * Get text without separators.
+     * <p>
+     * Deprecated, use {@link #getTrimmedString()} instead.
      */
+    @Deprecated
     public String getNonSeparatorText() {
         return getText().toString().replaceAll(mSeparator, "");
+    }
+
+    /**
+     * Get text String having been trimmed.
+     */
+    public String getTrimmedString() {
+        if (hasNoSeparator) {
+            return getText().toString().trim();
+        } else {
+            return getText().toString().replaceAll(mSeparator, "").trim();
+        }
     }
 
     /**
