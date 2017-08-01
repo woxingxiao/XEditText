@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView1.setText(clearXEdit.getNonSeparatorText());
+                textView1.setText(clearXEdit.getTrimmedString());
             }
         });
         customXEdit.setOnXTextChangeListener(new XEditText.OnXTextChangeListener() {
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView2.setText(customXEdit.getNonSeparatorText());
+                textView2.setText(customXEdit.getTrimmedString());
             }
         });
 
