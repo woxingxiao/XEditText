@@ -47,7 +47,7 @@ Wrapped common usage of `EditText`.
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:hint="pwd input, custom drawables"
-      android:inputType="textPassword" <!-- don't set gravity to center center_vertical right end, otherwise the ClearDrawable will not appear. -->
+      android:inputType="textPassword" <!-- don't set gravity to center, center_horizontal, right or end, otherwise the ClearDrawable will not appear. -->
       app:x_clearDrawable="@mipmap/ic_clear" <!--support svg-->
       app:x_hidePwdDrawable="@mipmap/ic_hide" <!--support svg-->
       app:x_showPwdDrawable="@mipmap/ic_show"/> <!--support svg-->
