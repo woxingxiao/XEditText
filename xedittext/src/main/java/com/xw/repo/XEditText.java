@@ -31,8 +31,9 @@ import android.view.View;
 
 /**
  * XEditText
- * Github: https://github.com/woxingxiao/XEditText
- * <p/>
+ * <p>
+ * GitHub: https://github.com/woxingxiao/XEditText
+ * <p>
  * Created by woxingxiao on 2017-03-22.
  */
 public class XEditText extends AppCompatEditText {
@@ -173,7 +174,7 @@ public class XEditText extends AppCompatEditText {
         super.onDraw(canvas);
 
         if (hasFocused && mBitmap != null && isPwdInputType && !isTextEmpty()) {
-            int left = getMeasuredWidth() - getPaddingRight() - getCompoundDrawablePadding() -
+            int left = getMeasuredWidth() - getPaddingRight() -
                     mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - dp2px(4);
             int top = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
             canvas.drawBitmap(mBitmap, left, top, null);
@@ -186,7 +187,7 @@ public class XEditText extends AppCompatEditText {
             int w = mTogglePwdDrawable.getIntrinsicWidth();
             int h = mTogglePwdDrawable.getIntrinsicHeight();
             int top = (getMeasuredHeight() - h) >> 1;
-            int right = getMeasuredWidth() - getPaddingRight() - getCompoundDrawablePadding();
+            int right = getMeasuredWidth() - getPaddingRight();
             boolean isAreaX = event.getX() <= right && event.getX() >= right - w;
             boolean isAreaY = event.getY() >= top && event.getY() <= top + h;
             if (isAreaX && isAreaY) {
@@ -227,7 +228,7 @@ public class XEditText extends AppCompatEditText {
             int rectW = rect.width();
             int rectH = rect.height();
             int top = (getMeasuredHeight() - rectH) >> 1;
-            int right = getMeasuredWidth() - getPaddingRight() - getCompoundDrawablePadding();
+            int right = getMeasuredWidth() - getPaddingRight();
             boolean isAreaX = event.getX() <= right && event.getX() >= right - rectW;
             boolean isAreaY = event.getY() >= top && event.getY() <= (top + rectH);
             if (isAreaX && isAreaY) {
