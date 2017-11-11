@@ -104,6 +104,7 @@ public class XEditText extends AppCompatEditText {
         }
 
         disableClear = a.getBoolean(R.styleable.XEditText_x_disableClear, false);
+        boolean disableTogglePwdDrawable = a.getBoolean(R.styleable.XEditText_x_disableTogglePwdDrawable, false);
 
         if (!disableClear) {
             int cdId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
@@ -117,7 +118,7 @@ public class XEditText extends AppCompatEditText {
         }
 
         int inputType = getInputType();
-        if (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225) {
+        if (!disableTogglePwdDrawable && (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225)) {
             isPwdInputType = true;
             isPwdShow = inputType == 145;
             mMaxLength = 20;
