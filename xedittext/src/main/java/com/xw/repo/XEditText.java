@@ -15,7 +15,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.widget.AppCompatDrawableManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -110,11 +110,13 @@ public class XEditText extends AppCompatEditText {
             int cdId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
             if (cdId == -1)
                 cdId = R.drawable.x_et_svg_ic_clear_24dp;
-            mClearDrawable = ContextCompat.getDrawable(context, cdId);
-            mClearDrawable.setBounds(0, 0, mClearDrawable.getIntrinsicWidth(),
-                    mClearDrawable.getIntrinsicHeight());
-            if (cdId == R.drawable.x_et_svg_ic_clear_24dp)
-                DrawableCompat.setTint(mClearDrawable, getCurrentHintTextColor());
+            mClearDrawable = AppCompatResources.getDrawable(context, cdId);
+            if (mClearDrawable != null) {
+                mClearDrawable.setBounds(0, 0, mClearDrawable.getIntrinsicWidth(),
+                        mClearDrawable.getIntrinsicHeight());
+                if (cdId == R.drawable.x_et_svg_ic_clear_24dp)
+                    DrawableCompat.setTint(mClearDrawable, getCurrentHintTextColor());
+            }
         }
 
         int inputType = getInputType();
@@ -154,7 +156,10 @@ public class XEditText extends AppCompatEditText {
     }
 
     private Bitmap getBitmapFromVectorDrawable(Context context, int drawableId, boolean tint) {
-        Drawable drawable = AppCompatDrawableManager.get().getDrawable(context, drawableId);
+        Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
+        if (drawable == null)
+            return null;
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             drawable = (DrawableCompat.wrap(drawable)).mutate();
         }
@@ -183,7 +188,16 @@ public class XEditText extends AppCompatEditText {
     }
 
     @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            performClick();
+        }
+
         if (hasFocused && isPwdInputType && event.getAction() == MotionEvent.ACTION_UP) {
             int w = mTogglePwdDrawable.getIntrinsicWidth();
             int h = mTogglePwdDrawable.getIntrinsicHeight();
@@ -245,26 +259,26 @@ public class XEditText extends AppCompatEditText {
     public boolean onTextContextMenuItem(int id) {
         ClipboardManager clipboardManager = (ClipboardManager) getContext()
                 .getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboardManager != null) {
+            if (id == 16908320 || id == 16908321) { // catch CUT or COPY ops
+                super.onTextContextMenuItem(id);
 
-        if (id == 16908320 || id == 16908321) { // catch CUT or COPY ops
-            super.onTextContextMenuItem(id);
+                ClipData clip = clipboardManager.getPrimaryClip();
+                ClipData.Item item = clip.getItemAt(0);
+                if (item != null && item.getText() != null) {
+                    String s = item.getText().toString().replace(mSeparator, "");
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText(null, s));
 
-            ClipData clip = clipboardManager.getPrimaryClip();
-            ClipData.Item item = clip.getItemAt(0);
-            if (item != null && item.getText() != null) {
-                String s = item.getText().toString().replace(mSeparator, "");
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, s));
+                    return true;
+                }
+            } else if (id == 16908322) { // catch PASTE ops
+                ClipData clip = clipboardManager.getPrimaryClip();
+                ClipData.Item item = clip.getItemAt(0);
+                if (item != null && item.getText() != null) {
+                    setTextToSeparate((getText().toString() + item.getText().toString()).replace(mSeparator, ""));
 
-                return true;
-            }
-
-        } else if (id == 16908322) { // catch PASTE ops
-            ClipData clip = clipboardManager.getPrimaryClip();
-            ClipData.Item item = clip.getItemAt(0);
-            if (item != null && item.getText() != null) {
-                setTextToSeparate((getText().toString() + item.getText().toString()).replace(mSeparator, ""));
-
-                return true;
+                    return true;
+                }
             }
         }
 
