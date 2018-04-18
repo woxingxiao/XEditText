@@ -25,6 +25,7 @@ import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -48,7 +49,9 @@ public class XEditText extends AppCompatEditText {
 
     private OnXTextChangeListener mXTextChangeListener;
     private TextWatcher mTextWatcher;
-    private int mPreLength;
+    private int mOldLength;
+    private int mNowLength;
+    private int mSelectionPos;
     private boolean hasFocused;
     private int[] pattern; // pattern to separate. e.g.: mSeparator = "-", pattern = [3,4,4] -> xxx-xxxx-xxxx
     private int[] intervals; // indexes of separators.
@@ -104,7 +107,7 @@ public class XEditText extends AppCompatEditText {
         }
 
         disableClear = a.getBoolean(R.styleable.XEditText_x_disableClear, false);
-        boolean disableTogglePwdDrawable = a.getBoolean(R.styleable.XEditText_x_disableTogglePwdDrawable, false);
+        boolean togglePwdDrawableEnable = a.getBoolean(R.styleable.XEditText_x_togglePwdDrawableEnable, false);
 
         if (!disableClear) {
             int cdId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
@@ -120,7 +123,7 @@ public class XEditText extends AppCompatEditText {
         }
 
         int inputType = getInputType();
-        if (!disableTogglePwdDrawable && (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225)) {
+        if (togglePwdDrawableEnable || (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225)) {
             isPwdInputType = true;
             isPwdShow = inputType == 145;
             mMaxLength = 20;
@@ -151,6 +154,39 @@ public class XEditText extends AppCompatEditText {
         }
 
         disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
+
+        String pattern = a.getString(R.styleable.XEditText_x_pattern);
+        if (!mSeparator.isEmpty() && !isPwdInputType && pattern != null && !pattern.isEmpty()) {
+            boolean ok = true;
+            if (pattern.contains(",")) {
+                String[] split = pattern.split(",");
+
+                int[] array = new int[split.length];
+                for (int i = 0; i < array.length; i++) {
+                    try {
+                        array[i] = Integer.parseInt(split[i]);
+                    } catch (Exception e) {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                if (ok) {
+                    setPattern(array, mSeparator);
+                }
+            } else {
+                try {
+                    int i = Integer.parseInt(pattern);
+                    setPattern(new int[]{i}, mSeparator);
+                } catch (Exception e) {
+                    ok = false;
+                }
+            }
+
+            if (!ok) {
+                Log.e("XEditText", "the Pattern format is incorrect!");
+            }
+        }
 
         a.recycle();
     }
@@ -289,7 +325,7 @@ public class XEditText extends AppCompatEditText {
     private class MyTextWatcher implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            mPreLength = s.length();
+            mOldLength = s.length();
             if (mXTextChangeListener != null) {
                 mXTextChangeListener.beforeTextChanged(s, start, count, after);
             }
@@ -297,6 +333,8 @@ public class XEditText extends AppCompatEditText {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            mNowLength = s.length();
+            mSelectionPos = getSelectionStart();
             if (mXTextChangeListener != null) {
                 mXTextChangeListener.onTextChanged(s, start, before, count);
             }
@@ -304,42 +342,33 @@ public class XEditText extends AppCompatEditText {
 
         @Override
         public void afterTextChanged(Editable s) {
+            markerFocusChangeLogic();
+
+            if (mSeparator.isEmpty()) {
+                if (mXTextChangeListener != null) {
+                    mXTextChangeListener.afterTextChanged(s);
+                }
+
+                return;
+            }
+
+            removeTextChangedListener(mTextWatcher);
+
+            String trimmedText;
+            if (hasNoSeparator) {
+                trimmedText = s.toString().trim();
+            } else {
+                trimmedText = s.toString().replaceAll(mSeparator, "").trim();
+            }
+            setTextToSeparate(trimmedText);
+
             if (mXTextChangeListener != null) {
+                s.clear();
+                s.append(trimmedText);
                 mXTextChangeListener.afterTextChanged(s);
             }
 
-            int currLength = s.length();
-            if (hasNoSeparator) {
-                mMaxLength = currLength;
-            }
-
-            markerFocusChangeLogic();
-
-            if (currLength > mMaxLength) {
-                getText().delete(currLength - 1, currLength);
-                return;
-            }
-            if (pattern == null) {
-                return;
-            }
-
-            for (int i = 0; i < pattern.length; i++) {
-                if (currLength - 1 == intervals[i]) {
-                    if (currLength > mPreLength) { // inputting
-                        if (currLength < mMaxLength) {
-                            removeTextChangedListener(mTextWatcher);
-                            getText().insert(currLength - 1, mSeparator);
-                        }
-                    } else if (mPreLength <= mMaxLength) { // deleting
-                        removeTextChangedListener(mTextWatcher);
-                        getText().delete(currLength - 1, currLength);
-                    }
-
-                    addTextChangedListener(mTextWatcher);
-
-                    break;
-                }
-            }
+            addTextChangedListener(mTextWatcher);
         }
     }
 
@@ -409,16 +438,12 @@ public class XEditText extends AppCompatEditText {
         this.pattern = pattern;
 
         intervals = new int[pattern.length];
-        int count = 0;
         int sum = 0;
         for (int i = 0; i < pattern.length; i++) {
             sum += pattern[i];
-            intervals[i] = sum + count;
-            if (i < pattern.length - 1) {
-                count += mSeparator.length();
-            }
+            intervals[i] = sum;
         }
-        mMaxLength = intervals[intervals.length - 1];
+        mMaxLength = intervals[intervals.length - 1] + pattern.length - 1;
 
         InputFilter[] filters = new InputFilter[1];
         filters[0] = new InputFilter.LengthFilter(mMaxLength);
@@ -429,24 +454,38 @@ public class XEditText extends AppCompatEditText {
      * set CharSequence to separate
      */
     public void setTextToSeparate(@NonNull CharSequence c) {
-        if (c.length() == 0) {
+        if (c.length() == 0 || intervals == null) {
             return;
         }
 
-        setText("");
-        for (int i = 0; i < c.length(); i++) {
-            append(c.subSequence(i, i + 1));
-        }
-    }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0, length1 = c.length(); i < length1; i++) {
+            builder.append(c.subSequence(i, i + 1));
+            for (int j = 0, length2 = intervals.length; j < length2; j++) {
+                if (i == intervals[j] && j < length2 - 1) {
+                    builder.insert(builder.length() - 1, mSeparator);
 
-    /**
-     * Get text without separators.
-     * <p>
-     * Deprecated, use {@link #getTrimmedString()} instead.
-     */
-    @Deprecated
-    public String getNonSeparatorText() {
-        return getText().toString().replaceAll(mSeparator, "");
+                    if (mSelectionPos == builder.length() - 1 && mSelectionPos > intervals[j]) {
+                        if (mNowLength > mOldLength) { // inputted
+                            mSelectionPos += mSeparator.length();
+                        } else { // deleted
+                            mSelectionPos -= mSeparator.length();
+                        }
+                    }
+                }
+            }
+        }
+
+        String text = builder.toString();
+        setText(text);
+
+        if (mSelectionPos > text.length()) {
+            mSelectionPos = text.length();
+        }
+        if (mSelectionPos < 0) {
+            mSelectionPos = 0;
+        }
+        setSelection(mSelectionPos);
     }
 
     /**

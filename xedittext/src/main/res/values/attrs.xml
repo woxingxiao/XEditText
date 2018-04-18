@@ -7,6 +7,7 @@
         <attr name="x_showPwdDrawable" format="reference"/>
         <attr name="x_hidePwdDrawable" format="reference"/>
         <attr name="x_disableEmoji" format="boolean"/>
-        <attr name="x_disableTogglePwdDrawable" format="boolean"/>
+        <attr name="x_togglePwdDrawableEnable" format="boolean"/>
+        <attr name="x_pattern" format="string"/>
     </declare-styleable>
 </resources>
