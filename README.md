@@ -18,7 +18,7 @@ Wrapped common usage of `EditText`.
 ## Gradle
 ```groovy
     dependencies{
-        //e.g. 'com.xw.repo:xedittext:2.0.5@aar'
+        //e.g. 'com.xw.repo:xedittext:2.1.0@aar'
         compile 'com.xw.repo:xedittext:${LATEST_VERSION}@aar'
     }
 ```
@@ -48,9 +48,16 @@ Wrapped common usage of `EditText`.
       android:layout_height="wrap_content"
       android:hint="pwd input, custom drawables"
       android:inputType="textPassword" <!-- don't set gravity to center, center_horizontal, right or end, otherwise the ClearDrawable will not appear. -->
-      app:x_clearDrawable="@mipmap/ic_clear" <!--support svg-->
-      app:x_hidePwdDrawable="@mipmap/ic_hide" <!--support svg-->
-      app:x_showPwdDrawable="@mipmap/ic_show"/> <!--support svg-->
+      app:x_clearDrawable="@mipmap/ic_clear" <!--support vector drawable-->
+      app:x_hidePwdDrawable="@mipmap/ic_hide" <!--support vector drawable-->
+      app:x_showPwdDrawable="@mipmap/ic_show"/> <!--support vector drawable-->
+
+  <com.xw.repo.XEditText
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="the pattern to separate the content"
+      app:x_pattern="3,4,4"
+      app:x_separator=" "/>
 ```
 Check the sample for more detail.
 
