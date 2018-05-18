@@ -311,7 +311,7 @@ public class XEditText extends AppCompatEditText {
                 ClipData clip = clipboardManager.getPrimaryClip();
                 ClipData.Item item = clip.getItemAt(0);
                 if (item != null && item.getText() != null) {
-                    setTextToSeparate((getText().toString() + item.getText().toString()).replace(mSeparator, ""));
+                    setTextToSeparate((getText().toString() + item.getText().toString()).replace(mSeparator, ""), false);
 
                     return true;
                 }
@@ -360,7 +360,7 @@ public class XEditText extends AppCompatEditText {
             } else {
                 trimmedText = s.toString().replaceAll(mSeparator, "").trim();
             }
-            setTextToSeparate(trimmedText);
+            setTextToSeparate(trimmedText, false);
 
             if (mXTextChangeListener != null) {
                 s.clear();
@@ -454,6 +454,10 @@ public class XEditText extends AppCompatEditText {
      * set CharSequence to separate
      */
     public void setTextToSeparate(@NonNull CharSequence c) {
+        setTextToSeparate(c, true);
+    }
+
+    private void setTextToSeparate(@NonNull CharSequence c, boolean fromUser) {
         if (c.length() == 0 || intervals == null) {
             return;
         }
@@ -479,13 +483,17 @@ public class XEditText extends AppCompatEditText {
         String text = builder.toString();
         setText(text);
 
-        if (mSelectionPos > text.length()) {
-            mSelectionPos = text.length();
+        if (fromUser) {
+            setSelection(text.length());
+        } else {
+            if (mSelectionPos > text.length()) {
+                mSelectionPos = text.length();
+            }
+            if (mSelectionPos < 0) {
+                mSelectionPos = 0;
+            }
+            setSelection(mSelectionPos);
         }
-        if (mSelectionPos < 0) {
-            mSelectionPos = 0;
-        }
-        setSelection(mSelectionPos);
     }
 
     /**
