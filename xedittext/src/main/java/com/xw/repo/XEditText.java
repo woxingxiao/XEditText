@@ -311,9 +311,11 @@ public class XEditText extends AppCompatEditText {
                 ClipData clip = clipboardManager.getPrimaryClip();
                 ClipData.Item item = clip.getItemAt(0);
                 if (item != null && item.getText() != null) {
-                    setTextToSeparate((getText().toString() + item.getText().toString()).replace(mSeparator, ""), false);
-
-                    return true;
+                    String content = item.getText().toString().replace(mSeparator, "");
+                    if (intervals != null) {
+                        setTextToSeparate(getText().toString() + content, true);
+                        return true;
+                    }
                 }
             }
         }
