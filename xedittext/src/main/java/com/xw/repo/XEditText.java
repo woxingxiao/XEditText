@@ -41,12 +41,14 @@ public class XEditText extends AppCompatEditText {
 
     private String mSeparator; //mSeparator，default is "".
     private boolean disableClear; // disable clear drawable.
-    private Drawable mClearDrawable;
-    private Drawable mTogglePwdDrawable;
+    private int mClearResId;
+    private boolean togglePwdDrawableEnable;
     private boolean disableEmoji; // disable emoji and some special symbol input.
     private int mShowPwdResId;
     private int mHidePwdResId;
 
+    private Drawable mClearDrawable;
+    private Drawable mTogglePwdDrawable;
     private OnXTextChangeListener mXTextChangeListener;
     private TextWatcher mTextWatcher;
     private int mOldLength;
@@ -96,6 +98,15 @@ public class XEditText extends AppCompatEditText {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.XEditText, defStyleAttr, 0);
 
         mSeparator = a.getString(R.styleable.XEditText_x_separator);
+        disableClear = a.getBoolean(R.styleable.XEditText_x_disableClear, false);
+        mClearResId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
+        togglePwdDrawableEnable = a.getBoolean(R.styleable.XEditText_x_togglePwdDrawableEnable, true);
+        mShowPwdResId = a.getResourceId(R.styleable.XEditText_x_showPwdDrawable, -1);
+        mHidePwdResId = a.getResourceId(R.styleable.XEditText_x_hidePwdDrawable, -1);
+        disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
+        String pattern = a.getString(R.styleable.XEditText_x_pattern);
+        a.recycle();
+
         if (mSeparator == null) {
             mSeparator = "";
         }
@@ -106,55 +117,20 @@ public class XEditText extends AppCompatEditText {
             }
         }
 
-        disableClear = a.getBoolean(R.styleable.XEditText_x_disableClear, false);
         if (!disableClear) {
-            int cdId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
-            if (cdId == -1)
-                cdId = R.drawable.x_et_svg_ic_clear_24dp;
-            mClearDrawable = AppCompatResources.getDrawable(context, cdId);
+            if (mClearResId == -1)
+                mClearResId = R.drawable.x_et_svg_ic_clear_24dp;
+            mClearDrawable = AppCompatResources.getDrawable(context, mClearResId);
             if (mClearDrawable != null) {
                 mClearDrawable.setBounds(0, 0, mClearDrawable.getIntrinsicWidth(),
                         mClearDrawable.getIntrinsicHeight());
-                if (cdId == R.drawable.x_et_svg_ic_clear_24dp)
+                if (mClearResId == R.drawable.x_et_svg_ic_clear_24dp)
                     DrawableCompat.setTint(mClearDrawable, getCurrentHintTextColor());
             }
         }
 
-        boolean togglePwdDrawableEnable = a.getBoolean(R.styleable.XEditText_x_togglePwdDrawableEnable, true);
-        int inputType = getInputType();
-        if (togglePwdDrawableEnable && (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225)) {
-            isPwdInputType = true;
-            isPwdShow = inputType == 145;
-            mMaxLength = 20;
+        dealWithInputTypes(true);
 
-            mShowPwdResId = a.getResourceId(R.styleable.XEditText_x_showPwdDrawable, -1);
-            mHidePwdResId = a.getResourceId(R.styleable.XEditText_x_hidePwdDrawable, -1);
-            if (mShowPwdResId == -1)
-                mShowPwdResId = R.drawable.x_et_svg_ic_show_password_24dp;
-            if (mHidePwdResId == -1)
-                mHidePwdResId = R.drawable.x_et_svg_ic_hide_password_24dp;
-
-            int tId = isPwdShow ? mShowPwdResId : mHidePwdResId;
-            mTogglePwdDrawable = ContextCompat.getDrawable(context, tId);
-            if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
-                    mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
-                DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
-            }
-            mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
-                    mTogglePwdDrawable.getIntrinsicHeight());
-
-            int cdId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
-            if (cdId == -1)
-                cdId = R.drawable.x_et_svg_ic_clear_24dp;
-            if (!disableClear) {
-                mBitmap = getBitmapFromVectorDrawable(context, cdId,
-                        cdId == R.drawable.x_et_svg_ic_clear_24dp); // clearDrawable
-            }
-        }
-
-        disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
-
-        String pattern = a.getString(R.styleable.XEditText_x_pattern);
         if (!mSeparator.isEmpty() && !isPwdInputType && pattern != null && !pattern.isEmpty()) {
             boolean ok = true;
             if (pattern.contains(",")) {
@@ -186,8 +162,39 @@ public class XEditText extends AppCompatEditText {
                 Log.e("XEditText", "the Pattern format is incorrect!");
             }
         }
+    }
 
-        a.recycle();
+    private void dealWithInputTypes(boolean fromXml) {
+        int inputType = getInputType() + (fromXml ? 0 : 1);
+
+        if (togglePwdDrawableEnable && (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225)) {
+            isPwdInputType = true;
+            isPwdShow = inputType == 145;
+            mMaxLength = 20;
+
+            if (mShowPwdResId == -1)
+                mShowPwdResId = R.drawable.x_et_svg_ic_show_password_24dp;
+            if (mHidePwdResId == -1)
+                mHidePwdResId = R.drawable.x_et_svg_ic_hide_password_24dp;
+
+            int tId = isPwdShow ? mShowPwdResId : mHidePwdResId;
+            mTogglePwdDrawable = ContextCompat.getDrawable(getContext(), tId);
+            if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
+                    mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
+                DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+            }
+            mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
+                    mTogglePwdDrawable.getIntrinsicHeight());
+
+            if (mClearResId == -1)
+                mClearResId = R.drawable.x_et_svg_ic_clear_24dp;
+            if (!disableClear) {
+                mBitmap = getBitmapFromVectorDrawable(getContext(), mClearResId,
+                        mClearResId == R.drawable.x_et_svg_ic_clear_24dp); // clearDrawable
+            }
+
+            invalidate();
+        }
     }
 
     private Bitmap getBitmapFromVectorDrawable(Context context, int drawableId, boolean tint) {
@@ -208,6 +215,13 @@ public class XEditText extends AppCompatEditText {
         drawable.draw(canvas);
 
         return bitmap;
+    }
+
+    @Override
+    public void setInputType(int type) {
+        super.setInputType(type);
+
+        dealWithInputTypes(false);
     }
 
     @Override
