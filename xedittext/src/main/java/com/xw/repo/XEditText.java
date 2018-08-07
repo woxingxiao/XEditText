@@ -21,6 +21,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -110,6 +111,7 @@ public class XEditText extends AppCompatEditText {
         if (mSeparator == null) {
             mSeparator = "";
         }
+        hasNoSeparator = TextUtils.isEmpty(mSeparator);
         if (mSeparator.length() > 0) {
             int inputType = getInputType();
             if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
@@ -165,11 +167,16 @@ public class XEditText extends AppCompatEditText {
     }
 
     private void dealWithInputTypes(boolean fromXml) {
-        int inputType = getInputType() + (fromXml ? 0 : 1);
+        int inputType = getInputType();
+        if (!fromXml) {
+            inputType++;
+            if (inputType == 17)
+                inputType++;
+        }
 
-        if (togglePwdDrawableEnable && (inputType == 129 || inputType == 145 || inputType == 18 || inputType == 225)) {
+        if (togglePwdDrawableEnable && (inputType == 129 || inputType == 18 || inputType == 145 || inputType == 225)) {
             isPwdInputType = true;
-            isPwdShow = inputType == 145;
+            isPwdShow = inputType == 145; // textVisiblePassword
             mMaxLength = 20;
 
             if (mShowPwdResId == -1)
@@ -325,10 +332,8 @@ public class XEditText extends AppCompatEditText {
                 ClipData.Item item = clip.getItemAt(0);
                 if (item != null && item.getText() != null) {
                     String content = item.getText().toString().replace(mSeparator, "");
-                    if (intervals != null) {
-                        setTextToSeparate(getText().toString() + content, true);
-                        return true;
-                    }
+                    setTextEx(getText().toString() + content);
+                    return true;
                 }
             }
         }
@@ -425,6 +430,7 @@ public class XEditText extends AppCompatEditText {
     public void setSeparator(@NonNull String separator) {
         this.mSeparator = separator;
 
+        hasNoSeparator = TextUtils.isEmpty(mSeparator);
         if (mSeparator.length() > 0) {
             int inputType = getInputType();
             if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
@@ -467,9 +473,28 @@ public class XEditText extends AppCompatEditText {
 
     /**
      * set CharSequence to separate
+     *
+     * @deprecated Call {@link #setTextEx(CharSequence)} instead.
      */
+    @Deprecated
     public void setTextToSeparate(@NonNull CharSequence c) {
         setTextToSeparate(c, true);
+    }
+
+    /**
+     * Call {@link #setText(CharSequence)} or set text to separate by the pattern had been set.
+     * <br/>
+     * It's especially convenient to call {@link #setText(CharSequence)} in Kotlin.
+     */
+    public void setTextEx(CharSequence text) {
+        if (TextUtils.isEmpty(text) || hasNoSeparator) {
+            setText(text);
+            if (text != null && text.length() > 0) {
+                setSelection(text.length());
+            }
+        } else {
+            setTextToSeparate(text, true);
+        }
     }
 
     private void setTextToSeparate(@NonNull CharSequence c, boolean fromUser) {
@@ -512,8 +537,29 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * Get text String having been trimmed.
+     * Get text string had been trimmed.
      */
+    public String getTextTrimmed() {
+        return getTextEx().trim();
+    }
+
+    /**
+     * Get text string.
+     */
+    public String getTextEx() {
+        if (hasNoSeparator) {
+            return getText().toString();
+        } else {
+            return getText().toString().replaceAll(mSeparator, "");
+        }
+    }
+
+    /**
+     * Get text String had been trimmed.
+     *
+     * @deprecated Call {@link #getTextTrimmed()} instead.
+     */
+    @Deprecated
     public String getTrimmedString() {
         if (hasNoSeparator) {
             return getText().toString().trim();
@@ -530,13 +576,12 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * @param hasNoSeparator true, has no separator, the same as EditText
+     * Set no separator, the same as EditText
      */
-    public void setHasNoSeparator(boolean hasNoSeparator) {
-        this.hasNoSeparator = hasNoSeparator;
-        if (hasNoSeparator) {
-            mSeparator = "";
-        }
+    public void setNoSeparator() {
+        hasNoSeparator = true;
+        mSeparator = "";
+        intervals = null;
     }
 
     /**
@@ -576,7 +621,6 @@ public class XEditText extends AppCompatEditText {
         bundle.putParcelable("save_instance", super.onSaveInstanceState());
         bundle.putString("separator", mSeparator);
         bundle.putIntArray("pattern", pattern);
-        bundle.putBoolean("hasNoSeparator", hasNoSeparator);
 
         return bundle;
     }
@@ -587,8 +631,8 @@ public class XEditText extends AppCompatEditText {
             Bundle bundle = (Bundle) state;
             mSeparator = bundle.getString("separator");
             pattern = bundle.getIntArray("pattern");
-            hasNoSeparator = bundle.getBoolean("hasNoSeparator");
 
+            hasNoSeparator = TextUtils.isEmpty(mSeparator);
             if (pattern != null) {
                 setPattern(pattern);
             }
