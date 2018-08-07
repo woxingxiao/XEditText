@@ -31,7 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="default password input"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword"
+            android:maxLength="30"/>
 
         <TextView
             android:id="@+id/text1"
@@ -45,6 +46,7 @@
             android:layout_height="wrap_content"
             android:hint="pwd input, custom drawables"
             android:inputType="textPassword"
+            android:maxLength="30"
             app:x_clearDrawable="@mipmap/ic_clear"
             app:x_hidePwdDrawable="@mipmap/ic_hide"
             app:x_showPwdDrawable="@mipmap/ic_show"/>

@@ -22,12 +22,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        clearXEdit = (XEditText) findViewById(R.id.clear_marker_edit_text);
-        customXEdit = (XEditText) findViewById(R.id.custom_edit_text);
-        showXEdit = (XEditText) findViewById(R.id.show_separator_edit_text);
-        textView1 = (TextView) findViewById(R.id.text1);
-        textView2 = (TextView) findViewById(R.id.text2);
-        Button button = (Button) findViewById(R.id.show_pattern_btn);
+        clearXEdit =  findViewById(R.id.clear_marker_edit_text);
+        customXEdit =  findViewById(R.id.custom_edit_text);
+        showXEdit =  findViewById(R.id.show_separator_edit_text);
+        textView1 =  findViewById(R.id.text1);
+        textView2 =  findViewById(R.id.text2);
+        Button button =  findViewById(R.id.show_pattern_btn);
 
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView1.setText(clearXEdit.getTrimmedString());
+                textView1.setText(clearXEdit.getTextTrimmed());
             }
         });
         customXEdit.setOnXTextChangeListener(new XEditText.OnXTextChangeListener() {
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                textView2.setText(customXEdit.getTrimmedString());
+                textView2.setText(customXEdit.getTextTrimmed());
             }
         });
 
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showXEdit.setTextToSeparate("13800000000");
+                    showXEdit.setTextEx("13800000000");
                 }
             });
         }

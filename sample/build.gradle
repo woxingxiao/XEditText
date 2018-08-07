@@ -8,8 +8,8 @@ android {
         applicationId "com.xw.sample.xedittext"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 5
-        versionName "2.1"
+        versionCode 6
+        versionName "2.2"
     }
     buildTypes {
         release {
