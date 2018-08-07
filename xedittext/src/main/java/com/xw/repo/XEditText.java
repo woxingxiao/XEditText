@@ -58,13 +58,11 @@ public class XEditText extends AppCompatEditText {
     private boolean hasFocused;
     private int[] pattern; // pattern to separate. e.g.: mSeparator = "-", pattern = [3,4,4] -> xxx-xxxx-xxxx
     private int[] intervals; // indexes of separators.
-    /* When you set pattern, it will automatically compute the max length of characters and separators,
-     so you don't need to set 'maxLength' attr in your xml any more(it won't work).*/
-    private int mMaxLength = Integer.MAX_VALUE;
     private boolean hasNoSeparator; // true, the same as EditText.
     private boolean isPwdInputType;
     private boolean isPwdShow;
     private Bitmap mBitmap;
+    private int mLeft, mTop;
 
     public XEditText(Context context) {
         this(context, null);
@@ -90,7 +88,7 @@ public class XEditText extends AppCompatEditText {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 hasFocused = hasFocus;
-                markerFocusChangeLogic();
+                logicOfCompoundDrawables();
             }
         });
     }
@@ -174,16 +172,19 @@ public class XEditText extends AppCompatEditText {
                 inputType++;
         }
 
-        if (togglePwdDrawableEnable && (inputType == 129 || inputType == 18 || inputType == 145 || inputType == 225)) {
-            isPwdInputType = true;
+        isPwdInputType = togglePwdDrawableEnable && (inputType == 129 || inputType == 18 || inputType == 145 || inputType == 225);
+        if (isPwdInputType) {
             isPwdShow = inputType == 145; // textVisiblePassword
-            mMaxLength = 20;
+            if (isPwdShow) {
+                setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            } else {
+                setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
 
             if (mShowPwdResId == -1)
                 mShowPwdResId = R.drawable.x_et_svg_ic_show_password_24dp;
             if (mHidePwdResId == -1)
                 mHidePwdResId = R.drawable.x_et_svg_ic_hide_password_24dp;
-
             int tId = isPwdShow ? mShowPwdResId : mHidePwdResId;
             mTogglePwdDrawable = ContextCompat.getDrawable(getContext(), tId);
             if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
@@ -199,8 +200,11 @@ public class XEditText extends AppCompatEditText {
                 mBitmap = getBitmapFromVectorDrawable(getContext(), mClearResId,
                         mClearResId == R.drawable.x_et_svg_ic_clear_24dp); // clearDrawable
             }
+        }
 
-            invalidate();
+        if (!fromXml) {
+            setTextEx(getTextEx());
+            logicOfCompoundDrawables();
         }
     }
 
@@ -236,10 +240,12 @@ public class XEditText extends AppCompatEditText {
         super.onDraw(canvas);
 
         if (hasFocused && mBitmap != null && isPwdInputType && !isTextEmpty()) {
-            int left = getMeasuredWidth() - getPaddingRight() -
-                    mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - dp2px(4);
-            int top = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
-            canvas.drawBitmap(mBitmap, left, top, null);
+            if (mLeft * mTop == 0) {
+                mLeft = getMeasuredWidth() - getPaddingRight() -
+                        mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - dp2px(4);
+                mTop = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
+            }
+            canvas.drawBitmap(mBitmap, mLeft, mTop, null);
         }
     }
 
@@ -362,7 +368,7 @@ public class XEditText extends AppCompatEditText {
 
         @Override
         public void afterTextChanged(Editable s) {
-            markerFocusChangeLogic();
+            logicOfCompoundDrawables();
 
             if (mSeparator.isEmpty()) {
                 if (mXTextChangeListener != null) {
@@ -392,7 +398,7 @@ public class XEditText extends AppCompatEditText {
         }
     }
 
-    private void markerFocusChangeLogic() {
+    private void logicOfCompoundDrawables() {
         if (!hasFocused || (isTextEmpty() && !isPwdInputType)) {
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
@@ -464,10 +470,12 @@ public class XEditText extends AppCompatEditText {
             sum += pattern[i];
             intervals[i] = sum;
         }
-        mMaxLength = intervals[intervals.length - 1] + pattern.length - 1;
+        /* When you set pattern, it will automatically compute the max length of characters and separators,
+           so you don't need to set 'maxLength' attr in your xml any more(it won't work).*/
+        int maxLength = intervals[intervals.length - 1] + pattern.length - 1;
 
         InputFilter[] filters = new InputFilter[1];
-        filters[0] = new InputFilter.LengthFilter(mMaxLength);
+        filters[0] = new InputFilter.LengthFilter(maxLength);
         setFilters(filters);
     }
 
