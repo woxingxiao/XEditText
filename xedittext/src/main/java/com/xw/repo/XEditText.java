@@ -51,6 +51,7 @@ public class XEditText extends AppCompatEditText {
     private Drawable mClearDrawable;
     private Drawable mTogglePwdDrawable;
     private OnXTextChangeListener mXTextChangeListener;
+    private OnXFocusChangeListener mXFocusChangeListener;
     private TextWatcher mTextWatcher;
     private int mOldLength;
     private int mNowLength;
@@ -89,6 +90,10 @@ public class XEditText extends AppCompatEditText {
             public void onFocusChange(View v, boolean hasFocus) {
                 hasFocused = hasFocus;
                 logicOfCompoundDrawables();
+
+                if (mXFocusChangeListener != null) {
+                    mXFocusChangeListener.onFocusChange(v, hasFocus);
+                }
             }
         });
     }
@@ -614,6 +619,10 @@ public class XEditText extends AppCompatEditText {
         this.mXTextChangeListener = listener;
     }
 
+    public void setOnXFocusChangeListener(OnXFocusChangeListener listener) {
+        mXFocusChangeListener = listener;
+    }
+
     public interface OnXTextChangeListener {
 
         void beforeTextChanged(CharSequence s, int start, int count, int after);
@@ -621,6 +630,10 @@ public class XEditText extends AppCompatEditText {
         void onTextChanged(CharSequence s, int start, int before, int count);
 
         void afterTextChanged(Editable s);
+    }
+
+    public interface OnXFocusChangeListener {
+        void onFocusChange(View v, boolean hasFocus);
     }
 
     @Override
