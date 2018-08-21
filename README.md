@@ -59,7 +59,8 @@ Wrapped common usage of `EditText`.
       app:x_pattern="3,4,4"
       app:x_separator=" "/>
 ```
-Check the sample for more detail.
+**Need to listen to the focus state? Call `.setOnXTextChangeListener()` instead of `.setOnTextChangeListener()`**  
+Check the sample for more details.
 
 ## License
 ```
