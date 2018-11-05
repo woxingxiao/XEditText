@@ -331,20 +331,24 @@ public class XEditText extends AppCompatEditText {
                 super.onTextContextMenuItem(id);
 
                 ClipData clip = clipboardManager.getPrimaryClip();
-                ClipData.Item item = clip.getItemAt(0);
-                if (item != null && item.getText() != null) {
-                    String s = item.getText().toString().replace(mSeparator, "");
-                    clipboardManager.setPrimaryClip(ClipData.newPlainText(null, s));
+                if (clip != null) {
+                    ClipData.Item item = clip.getItemAt(0);
+                    if (item != null && item.getText() != null) {
+                        String s = item.getText().toString().replace(mSeparator, "");
+                        clipboardManager.setPrimaryClip(ClipData.newPlainText(null, s));
 
-                    return true;
+                        return true;
+                    }
                 }
             } else if (id == 16908322) { // catch PASTE ops
                 ClipData clip = clipboardManager.getPrimaryClip();
-                ClipData.Item item = clip.getItemAt(0);
-                if (item != null && item.getText() != null) {
-                    String content = item.getText().toString().replace(mSeparator, "");
-                    setTextEx(getText().toString() + content);
-                    return true;
+                if (clip != null) {
+                    ClipData.Item item = clip.getItemAt(0);
+                    if (item != null && item.getText() != null) {
+                        String content = item.getText().toString().replace(mSeparator, "");
+                        setTextEx(getText_() + content);
+                        return true;
+                    }
                 }
             }
         }
@@ -427,7 +431,7 @@ public class XEditText extends AppCompatEditText {
     }
 
     private boolean isTextEmpty() {
-        return getText().toString().trim().length() == 0;
+        return getText_().trim().length() == 0;
     }
 
     private int dp2px(int dp) {
@@ -537,7 +541,8 @@ public class XEditText extends AppCompatEditText {
         setText(text);
 
         if (fromUser) {
-            setSelection(text.length());
+            int maxLength = intervals[intervals.length - 1] + pattern.length - 1;
+            setSelection(Math.min(maxLength, text.length()));
         } else {
             if (mSelectionPos > text.length()) {
                 mSelectionPos = text.length();
@@ -552,6 +557,7 @@ public class XEditText extends AppCompatEditText {
     /**
      * Get text string had been trimmed.
      */
+    @NonNull
     public String getTextTrimmed() {
         return getTextEx().trim();
     }
@@ -559,11 +565,12 @@ public class XEditText extends AppCompatEditText {
     /**
      * Get text string.
      */
+    @NonNull
     public String getTextEx() {
         if (hasNoSeparator) {
-            return getText().toString();
+            return getText_();
         } else {
-            return getText().toString().replaceAll(mSeparator, "");
+            return getText_().replaceAll(mSeparator, "");
         }
     }
 
@@ -575,10 +582,15 @@ public class XEditText extends AppCompatEditText {
     @Deprecated
     public String getTrimmedString() {
         if (hasNoSeparator) {
-            return getText().toString().trim();
+            return getText_().trim();
         } else {
-            return getText().toString().replaceAll(mSeparator, "").trim();
+            return getText_().replaceAll(mSeparator, "").trim();
         }
+    }
+
+    private String getText_() {
+        Editable editable = getText();
+        return editable == null ? "" : editable.toString();
     }
 
     /**

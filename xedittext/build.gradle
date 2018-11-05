@@ -1,15 +1,15 @@
 apply plugin: 'com.android.library'
 
-def VERSION_NAME = "2.2.1"
+def VERSION_NAME = "2.2.2"
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 27
-        versionCode 22
+        targetSdkVersion 28
+        versionCode 23
         versionName VERSION_NAME
     }
     buildTypes {
@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    compileOnly 'com.android.support:appcompat-v7:27.1.1'
+    compileOnly 'com.android.support:appcompat-v7:28.0.0'
 }
 
 apply plugin: 'com.novoda.bintray-release'
