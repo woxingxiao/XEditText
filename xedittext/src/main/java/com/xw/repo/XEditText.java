@@ -346,7 +346,21 @@ public class XEditText extends AppCompatEditText {
                     ClipData.Item item = clip.getItemAt(0);
                     if (item != null && item.getText() != null) {
                         String content = item.getText().toString().replace(mSeparator, "");
-                        setTextEx(getText_() + content);
+                        String existedTxt = getText_();
+
+                        String txt;
+                        int start = getSelectionStart();
+                        int end = getSelectionEnd();
+                        if (start * end >= 0) {
+                            String startHalfEx = existedTxt.substring(0, start).replace(mSeparator, "");
+                            txt = startHalfEx + content;
+                            String endHalfEx = existedTxt.substring(end, existedTxt.length()).replace(mSeparator, "");
+                            txt += endHalfEx;
+                        } else {
+                            txt = existedTxt.replace(mSeparator, "") + content;
+                        }
+                        setTextEx(txt);
+
                         return true;
                     }
                 }
@@ -542,7 +556,20 @@ public class XEditText extends AppCompatEditText {
 
         if (fromUser) {
             int maxLength = intervals[intervals.length - 1] + pattern.length - 1;
-            setSelection(Math.min(maxLength, text.length()));
+            int index = Math.min(maxLength, text.length());
+            try {
+                setSelection(index);
+            } catch (IndexOutOfBoundsException e) {
+                // Last resort (￣▽￣)
+                String message = e.getMessage();
+                if (!TextUtils.isEmpty(message) && message.contains(" ")) {
+                    int last = message.lastIndexOf(" ");
+                    String lenStr = message.substring(last + 1, message.length());
+                    if (TextUtils.isDigitsOnly(lenStr)) {
+                        setSelection(Integer.valueOf(lenStr));
+                    }
+                }
+            }
         } else {
             if (mSelectionPos > text.length()) {
                 mSelectionPos = text.length();
