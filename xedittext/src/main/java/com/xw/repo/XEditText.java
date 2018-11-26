@@ -52,6 +52,7 @@ public class XEditText extends AppCompatEditText {
     private Drawable mTogglePwdDrawable;
     private OnXTextChangeListener mXTextChangeListener;
     private OnXFocusChangeListener mXFocusChangeListener;
+    private OnClearListener mOnClearListener;
     private TextWatcher mTextWatcher;
     private int mOldLength;
     private int mNowLength;
@@ -241,6 +242,13 @@ public class XEditText extends AppCompatEditText {
     }
 
     @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        logicOfCompoundDrawables();
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
@@ -261,7 +269,10 @@ public class XEditText extends AppCompatEditText {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        if (!isEnabled()) {
+            return super.onTouchEvent(event);
+        }
+        if (event.getAction() == MotionEvent.ACTION_UP) {
             performClick();
         }
 
@@ -301,6 +312,9 @@ public class XEditText extends AppCompatEditText {
                 if (isAreaX && isAreaY) {
                     setError(null);
                     setText("");
+                    if (mOnClearListener != null) {
+                        mOnClearListener.onClear();
+                    }
                 }
             }
         }
@@ -316,6 +330,9 @@ public class XEditText extends AppCompatEditText {
             if (isAreaX && isAreaY) {
                 setError(null);
                 setText("");
+                if (mOnClearListener != null) {
+                    mOnClearListener.onClear();
+                }
             }
         }
 
@@ -422,7 +439,7 @@ public class XEditText extends AppCompatEditText {
     }
 
     private void logicOfCompoundDrawables() {
-        if (!hasFocused || (isTextEmpty() && !isPwdInputType)) {
+        if (!isEnabled() || !hasFocused || (isTextEmpty() && !isPwdInputType)) {
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
                     null, getCompoundDrawables()[3]);
 
@@ -662,6 +679,10 @@ public class XEditText extends AppCompatEditText {
         mXFocusChangeListener = listener;
     }
 
+    public void setOnClearListener(OnClearListener listener) {
+        mOnClearListener = listener;
+    }
+
     public interface OnXTextChangeListener {
 
         void beforeTextChanged(CharSequence s, int start, int count, int after);
@@ -673,6 +694,10 @@ public class XEditText extends AppCompatEditText {
 
     public interface OnXFocusChangeListener {
         void onFocusChange(View v, boolean hasFocus);
+    }
+
+    public interface OnClearListener {
+        void onClear();
     }
 
     @Override

@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 
-def VERSION_NAME = "2.2.3"
+def VERSION_NAME = "2.2.4"
 
 android {
     compileSdkVersion 28
@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 28
-        versionCode 24
+        versionCode 25
         versionName VERSION_NAME
     }
     buildTypes {
