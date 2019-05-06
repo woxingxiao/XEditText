@@ -15,6 +15,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
@@ -65,6 +66,7 @@ public class XEditText extends AppCompatEditText {
     private boolean isPwdShow;
     private Bitmap mBitmap;
     private int mLeft, mTop;
+    private int mPadding;
 
     public XEditText(Context context) {
         this(context, null);
@@ -97,6 +99,9 @@ public class XEditText extends AppCompatEditText {
                 }
             }
         });
+
+        mPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4,
+                Resources.getSystem().getDisplayMetrics());
     }
 
     private void initAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -193,12 +198,14 @@ public class XEditText extends AppCompatEditText {
                 mHidePwdResId = R.drawable.x_et_svg_ic_hide_password_24dp;
             int tId = isPwdShow ? mShowPwdResId : mHidePwdResId;
             mTogglePwdDrawable = ContextCompat.getDrawable(getContext(), tId);
-            if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
-                    mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
-                DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+            if (mTogglePwdDrawable != null) {
+                if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
+                        mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
+                    DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+                }
+                mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
+                        mTogglePwdDrawable.getIntrinsicHeight());
             }
-            mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
-                    mTogglePwdDrawable.getIntrinsicHeight());
 
             if (mClearResId == -1)
                 mClearResId = R.drawable.x_et_svg_ic_clear_24dp;
@@ -255,7 +262,7 @@ public class XEditText extends AppCompatEditText {
         if (hasFocused && mBitmap != null && isPwdInputType && !isTextEmpty()) {
             if (mLeft * mTop == 0) {
                 mLeft = getMeasuredWidth() - getPaddingRight() -
-                        mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - dp2px(4);
+                        mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - mPadding;
                 mTop = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
             }
             canvas.drawBitmap(mBitmap, mLeft, mTop, null);
@@ -291,23 +298,24 @@ public class XEditText extends AppCompatEditText {
                     setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
                 setSelection(getSelectionStart(), getSelectionEnd());
+
                 mTogglePwdDrawable = ContextCompat.getDrawable(getContext(), isPwdShow ?
                         mShowPwdResId : mHidePwdResId);
-                if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
-                        mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
-                    DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+                if (mTogglePwdDrawable != null) {
+                    if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
+                            mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
+                        DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+                    }
+                    mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
+                            mTogglePwdDrawable.getIntrinsicHeight());
+                    setCompoundDrawablesCompat(mTogglePwdDrawable);
+
+                    invalidate();
                 }
-                mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
-                        mTogglePwdDrawable.getIntrinsicHeight());
-
-                setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
-                        mTogglePwdDrawable, getCompoundDrawables()[3]);
-
-                invalidate();
             }
 
             if (!disableClear) {
-                right -= w + dp2px(4);
+                right -= w + mPadding;
                 isAreaX = event.getX() <= right && event.getX() >= right - mBitmap.getWidth();
                 if (isAreaX && isAreaY) {
                     setError(null);
@@ -371,7 +379,7 @@ public class XEditText extends AppCompatEditText {
                         if (start * end >= 0) {
                             String startHalfEx = existedTxt.substring(0, start).replace(mSeparator, "");
                             txt = startHalfEx + content;
-                            String endHalfEx = existedTxt.substring(end, existedTxt.length()).replace(mSeparator, "");
+                            String endHalfEx = existedTxt.substring(end).replace(mSeparator, "");
                             txt += endHalfEx;
                         } else {
                             txt = existedTxt.replace(mSeparator, "") + content;
@@ -440,8 +448,7 @@ public class XEditText extends AppCompatEditText {
 
     private void logicOfCompoundDrawables() {
         if (!isEnabled() || !hasFocused || (isTextEmpty() && !isPwdInputType)) {
-            setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
-                    null, getCompoundDrawables()[3]);
+            setCompoundDrawablesCompat(null);
 
             if (!isTextEmpty() && isPwdInputType) {
                 invalidate();
@@ -452,22 +459,20 @@ public class XEditText extends AppCompatEditText {
                         mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
                     DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
                 }
-                setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
-                        mTogglePwdDrawable, getCompoundDrawables()[3]);
+                setCompoundDrawablesCompat(mTogglePwdDrawable);
             } else if (!isTextEmpty() && !disableClear) {
-                setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1],
-                        mClearDrawable, getCompoundDrawables()[3]);
+                setCompoundDrawablesCompat(mClearDrawable);
             }
         }
     }
 
-    private boolean isTextEmpty() {
-        return getText_().trim().length() == 0;
+    private void setCompoundDrawablesCompat(Drawable drawableRight) {
+        Drawable[] drawables = TextViewCompat.getCompoundDrawablesRelative(this);
+        TextViewCompat.setCompoundDrawablesRelative(this, drawables[0], drawables[1], drawableRight, drawables[3]);
     }
 
-    private int dp2px(int dp) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
-                Resources.getSystem().getDisplayMetrics());
+    private boolean isTextEmpty() {
+        return getText_().trim().length() == 0;
     }
 
     /**
@@ -581,7 +586,7 @@ public class XEditText extends AppCompatEditText {
                 String message = e.getMessage();
                 if (!TextUtils.isEmpty(message) && message.contains(" ")) {
                     int last = message.lastIndexOf(" ");
-                    String lenStr = message.substring(last + 1, message.length());
+                    String lenStr = message.substring(last + 1);
                     if (TextUtils.isDigitsOnly(lenStr)) {
                         setSelection(Integer.valueOf(lenStr));
                     }
