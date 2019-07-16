@@ -371,7 +371,7 @@ public class XEditText extends AppCompatEditText {
                     ClipData.Item item = clip.getItemAt(0);
                     if (item != null && item.getText() != null) {
                         String content = item.getText().toString().replace(mSeparator, "");
-                        String existedTxt = getText_();
+                        String existedTxt = getTextNoneNull();
 
                         String txt;
                         int start = getSelectionStart();
@@ -472,7 +472,7 @@ public class XEditText extends AppCompatEditText {
     }
 
     private boolean isTextEmpty() {
-        return getText_().trim().length() == 0;
+        return getTextNoneNull().trim().length() == 0;
     }
 
     /**
@@ -542,9 +542,7 @@ public class XEditText extends AppCompatEditText {
     public void setTextEx(CharSequence text) {
         if (TextUtils.isEmpty(text) || hasNoSeparator) {
             setText(text);
-            if (text != null && text.length() > 0) {
-                setSelection(text.length());
-            }
+            setSelection(getTextNoneNull().length());
         } else {
             setTextToSeparate(text, true);
         }
@@ -617,9 +615,9 @@ public class XEditText extends AppCompatEditText {
     @NonNull
     public String getTextEx() {
         if (hasNoSeparator) {
-            return getText_();
+            return getTextNoneNull();
         } else {
-            return getText_().replaceAll(mSeparator, "");
+            return getTextNoneNull().replaceAll(mSeparator, "");
         }
     }
 
@@ -631,13 +629,13 @@ public class XEditText extends AppCompatEditText {
     @Deprecated
     public String getTrimmedString() {
         if (hasNoSeparator) {
-            return getText_().trim();
+            return getTextNoneNull().trim();
         } else {
-            return getText_().replaceAll(mSeparator, "").trim();
+            return getTextNoneNull().replaceAll(mSeparator, "").trim();
         }
     }
 
-    private String getText_() {
+    private String getTextNoneNull() {
         Editable editable = getText();
         return editable == null ? "" : editable.toString();
     }
