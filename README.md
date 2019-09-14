@@ -16,10 +16,19 @@ Wrapped common usage of `EditText`.
 ![demo3](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo3.gif)
 
 ## Gradle
+Support:
 ```groovy
     dependencies{
-        //e.g. 'com.xw.repo:xedittext:2.1.0@aar'
-        compile 'com.xw.repo:xedittext:${LATEST_VERSION}@aar'
+        //e.g. 'com.xw.repo:xedittext:2.2.6@aar'
+        implementation 'com.xw.repo:xedittext:${LATEST_VERSION}@aar'
+    }
+```
+
+AndroidX:
+```groovy
+    dependencies{
+        //e.g. 'com.xw.repo:xedittext-androidx:2.2.6@aar'
+        implementation 'com.xw.repo:xedittext-androidx:${LATEST_VERSION}@aar'
     }
 ```
 
