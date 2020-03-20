@@ -476,6 +476,13 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
+     * Return the separator has been set.
+     */
+    public String getSeparator() {
+        return mSeparator;
+    }
+
+    /**
      * set customize separator
      */
     public void setSeparator(@NonNull String separator) {
@@ -586,7 +593,7 @@ public class XEditText extends AppCompatEditText {
                     int last = message.lastIndexOf(" ");
                     String lenStr = message.substring(last + 1);
                     if (TextUtils.isDigitsOnly(lenStr)) {
-                        setSelection(Integer.valueOf(lenStr));
+                        setSelection(Integer.parseInt(lenStr));
                     }
                 }
             }
@@ -735,7 +742,7 @@ public class XEditText extends AppCompatEditText {
     /**
      * disable emoji and special symbol input
      */
-    private class EmojiExcludeFilter implements InputFilter {
+    private static class EmojiExcludeFilter implements InputFilter {
 
         @Override
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {

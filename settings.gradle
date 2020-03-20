@@ -1,1 +1,2 @@
-include ':sample', ':xedittext'//, ':xedittext-androidx'
+include ':sample', ':xedittext'
+//include ':sample', ':xedittext-androidx'
