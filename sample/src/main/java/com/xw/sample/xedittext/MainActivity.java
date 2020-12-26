@@ -22,12 +22,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        clearXEdit =  findViewById(R.id.clear_marker_edit_text);
-        customXEdit =  findViewById(R.id.custom_edit_text);
-        showXEdit =  findViewById(R.id.show_separator_edit_text);
-        textView1 =  findViewById(R.id.text1);
-        textView2 =  findViewById(R.id.text2);
-        Button button =  findViewById(R.id.show_pattern_btn);
+        clearXEdit = findViewById(R.id.clear_marker_edit_text);
+        customXEdit = findViewById(R.id.custom_edit_text);
+        showXEdit = findViewById(R.id.show_separator_edit_text);
+        textView1 = findViewById(R.id.text1);
+        textView2 = findViewById(R.id.text2);
+        Button button = findViewById(R.id.show_pattern_btn);
 
         customXEdit.setPattern(new int[]{4, 4, 4, 4});
 

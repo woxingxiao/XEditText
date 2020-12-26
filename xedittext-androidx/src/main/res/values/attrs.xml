@@ -2,12 +2,15 @@
 <resources>
     <declare-styleable name="XEditText">
         <attr name="x_separator" format="string"/>
-        <attr name="x_disableClear" format="boolean"/>
+        <attr name="x_pattern" format="string"/>
         <attr name="x_clearDrawable" format="reference"/>
         <attr name="x_showPwdDrawable" format="reference"/>
         <attr name="x_hidePwdDrawable" format="reference"/>
-        <attr name="x_disableEmoji" format="boolean"/>
+        <attr name="x_clearDrawableTint" format="color|reference"/>
+        <attr name="x_togglePwdDrawableTint" format="color|reference"/>
+        <attr name="x_interactionPadding" format="dimension|reference"/>
+        <attr name="x_disableClear" format="boolean"/>
         <attr name="x_togglePwdDrawableEnable" format="boolean"/>
-        <attr name="x_pattern" format="string"/>
+        <attr name="x_disableEmoji" format="boolean"/>
     </declare-styleable>
 </resources>

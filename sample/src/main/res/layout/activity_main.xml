@@ -18,7 +18,7 @@
             android:id="@+id/default_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="default, just likes EditText"
+            android:hint="default, just like EditText"
             app:x_disableClear="true"/>
 
         <com.xw.repo.XEditText
@@ -38,13 +38,13 @@
             android:id="@+id/text1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="6dp"
             android:textColor="#1976d2"/>
 
         <com.xw.repo.XEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="pwd input, custom drawables"
+            android:hint="password input, custom drawables"
             android:inputType="textPassword"
             android:maxLength="30"
             app:x_clearDrawable="@mipmap/ic_clear"
@@ -52,10 +52,17 @@
             app:x_showPwdDrawable="@mipmap/ic_show"/>
 
         <com.xw.repo.XEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="custom interaction padding"
+            android:inputType="textPassword"
+            app:x_interactionPadding="16dp"/>
+
+        <com.xw.repo.XEditText
             android:id="@+id/custom_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="customize separating pattern"
+            android:hint="custom separating pattern"
             android:inputType="phone"
             app:x_separator="-"/>
         <!-- if you want to separate, do not set maxLength attr -->
@@ -64,7 +71,7 @@
             android:id="@+id/text2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="6dp"
             android:textColor="#1976d2"/>
 
         <Button

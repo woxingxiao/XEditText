@@ -5,7 +5,7 @@ android {
 
     defaultConfig {
         applicationId "com.xw.sample.xedittext"
-        minSdkVersion 14
+        minSdkVersion 18
         targetSdkVersion 28
         versionCode 6
         versionName "2.2"

@@ -7,7 +7,10 @@ Wrapped common usage of `EditText`.
 - To clear all text content just by one click on the right. The clear drawable is customizable.
 - Perfectly fit for password input scenario. The toggle drawable is also customizable.
 - You can customize the **Separator** or **Pattern** to separate the text content. But the text content by COPY, CUT, and PASTE will no longer be affected by **Separator** or **Pattern** you set.
-- Be able to disable Emoji input.
+- Disable Emoji input.
+- Support RTL.🆕
+- Support drawable tint.🆕
+- Customizable padding of drawables' interaction rect area.🆕
 
 ## Screenshot
 ***
@@ -16,29 +19,27 @@ Wrapped common usage of `EditText`.
 ![demo3](https://github.com/woxingxiao/XEditText/blob/master/screenshots/demo3.gif)
 
 ## Gradle
-Support:
-```groovy
-    dependencies{
-        //e.g. 'com.xw.repo:xedittext:2.2.6@aar'
-        implementation 'com.xw.repo:xedittext:${LATEST_VERSION}@aar'
-    }
-```
-
 AndroidX:
 ```groovy
     dependencies{
-        //e.g. 'com.xw.repo:xedittext-androidx:2.2.6@aar'
-        implementation 'com.xw.repo:xedittext-androidx:${LATEST_VERSION}@aar'
+        //e.g.:implementation 'com.xw.repo:xedittext-androidx:2.3.0'
+        implementation 'com.xw.repo:xedittext-androidx:${LATEST_VERSION}'
     }
 ```
-
+Support:
+```groovy
+    dependencies{
+        //e.g.:implementation 'com.xw.repo:xedittext:2.3.0'
+        implementation 'com.xw.repo:xedittext:${LATEST_VERSION}'
+    }
+```
 ***
 ## Usage
 ```xml
   <com.xw.repo.XEditText
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="default, just likes EditText"
+      android:hint="default, just like EditText"
       app:x_disableClear="true"/>
 
   <com.xw.repo.XEditText
@@ -55,7 +56,7 @@ AndroidX:
   <com.xw.repo.XEditText
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="pwd input, custom drawables"
+      android:hint="password input, custom drawables"
       android:inputType="textPassword" <!-- don't set gravity to center, center_horizontal, right or end, otherwise the ClearDrawable will not appear. -->
       app:x_clearDrawable="@mipmap/ic_clear" <!--support vector drawable-->
       app:x_hidePwdDrawable="@mipmap/ic_hide" <!--support vector drawable-->
@@ -67,8 +68,17 @@ AndroidX:
       android:hint="the pattern to separate the content"
       app:x_pattern="3,4,4"
       app:x_separator=" "/>
+
+  <com.xw.repo.XEditText
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="custom interaction padding"
+      android:inputType="textPassword"
+      app:x_interactionPadding="16dp"/>
 ```
-**Need to listen to the focus state? Call `.setOnXTextChangeListener()` instead of `.setOnTextChangeListener()`**  
+**Call `.setOnXTextChangeListener()` instead of `.addTextChangedListener()`
+Call `.setOnXFocusChangeListener()` instead of `.setOnFocusChangeListener()`**
+
 Check the sample for more details.
 
 ## License

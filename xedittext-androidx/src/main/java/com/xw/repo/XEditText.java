@@ -1,25 +1,17 @@
 package com.xw.repo;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.widget.TextViewCompat;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatEditText;
-
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -34,6 +26,18 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.widget.TextViewCompat;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * XEditText
  * <p>
@@ -43,32 +47,38 @@ import android.view.View;
  */
 public class XEditText extends AppCompatEditText {
 
-    private String mSeparator; //mSeparator，default is "".
-    private boolean disableClear; // disable clear drawable.
+    private static final int DEFAULT_PADDING = (int) TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 4, Resources.getSystem().getDisplayMetrics());
+
+    private String mSeparator; // the separator，default is "".
     private int mClearResId;
-    private boolean togglePwdDrawableEnable;
-    private boolean disableEmoji; // disable emoji and some special symbol input.
     private int mShowPwdResId;
     private int mHidePwdResId;
+    private ColorStateList mClearDrawableTint;
+    private ColorStateList mTogglePwdDrawableTint;
+    private int mInteractionPadding; // padding of drawables' interactive rect area.
+    private boolean disableClear; // disable the clear drawable.
+    private boolean togglePwdDrawableEnable; // be able to use togglePwdDrawables.
+    private boolean disableEmoji; // disable emoji and some special symbol input.
 
     private Drawable mClearDrawable;
     private Drawable mTogglePwdDrawable;
     private OnXTextChangeListener mXTextChangeListener;
     private OnXFocusChangeListener mXFocusChangeListener;
     private OnClearListener mOnClearListener;
-    private TextWatcher mTextWatcher;
+    private final TextWatcher mTextWatcher;
     private int mOldLength;
     private int mNowLength;
     private int mSelectionPos;
     private boolean hasFocused;
     private int[] pattern; // pattern to separate. e.g.: mSeparator = "-", pattern = [3,4,4] -> xxx-xxxx-xxxx
     private int[] intervals; // indexes of separators.
-    private boolean hasNoSeparator; // true, the same as EditText.
+    private boolean hasNoSeparator; // if is true, the same as EditText.
     private boolean isPwdInputType;
     private boolean isPwdShow;
     private Bitmap mBitmap;
-    private int mLeft, mTop;
-    private int mPadding;
+    private int mStart, mTop;
+    private int mHalfPadding;
 
     public XEditText(Context context) {
         this(context, null);
@@ -83,12 +93,8 @@ public class XEditText extends AppCompatEditText {
 
         initAttrs(context, attrs, defStyleAttr);
 
-        if (disableEmoji) {
-            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
-        }
-
         mTextWatcher = new MyTextWatcher();
-        this.addTextChangedListener(mTextWatcher);
+        addTextChangedListener(mTextWatcher);
 
         setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
@@ -101,9 +107,6 @@ public class XEditText extends AppCompatEditText {
                 }
             }
         });
-
-        mPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4,
-                Resources.getSystem().getDisplayMetrics());
     }
 
     private void initAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -111,12 +114,31 @@ public class XEditText extends AppCompatEditText {
 
         mSeparator = a.getString(R.styleable.XEditText_x_separator);
         disableClear = a.getBoolean(R.styleable.XEditText_x_disableClear, false);
-        mClearResId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, -1);
+        mClearResId = a.getResourceId(R.styleable.XEditText_x_clearDrawable, R.drawable.x_et_svg_ic_clear_24dp);
         togglePwdDrawableEnable = a.getBoolean(R.styleable.XEditText_x_togglePwdDrawableEnable, true);
-        mShowPwdResId = a.getResourceId(R.styleable.XEditText_x_showPwdDrawable, -1);
-        mHidePwdResId = a.getResourceId(R.styleable.XEditText_x_hidePwdDrawable, -1);
+        mShowPwdResId = a.getResourceId(R.styleable.XEditText_x_showPwdDrawable, R.drawable.x_et_svg_ic_show_password_24dp);
+        mHidePwdResId = a.getResourceId(R.styleable.XEditText_x_hidePwdDrawable, R.drawable.x_et_svg_ic_hide_password_24dp);
+        if (a.hasValue(R.styleable.XEditText_x_clearDrawableTint)) {
+            mClearDrawableTint = a.getColorStateList(R.styleable.XEditText_x_clearDrawableTint);
+        } else {
+            mClearDrawableTint = ColorStateList.valueOf(getCurrentHintTextColor());
+        }
+        if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp &&
+                mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
+            // didn't customize toggle pwd drawables
+            if (a.hasValue(R.styleable.XEditText_x_togglePwdDrawableTint)) {
+                mTogglePwdDrawableTint = a.getColorStateList(R.styleable.XEditText_x_togglePwdDrawableTint);
+            } else {
+                mTogglePwdDrawableTint = ColorStateList.valueOf(getCurrentHintTextColor());
+            }
+        } else {
+            if (a.hasValue(R.styleable.XEditText_x_togglePwdDrawableTint)) {
+                mTogglePwdDrawableTint = a.getColorStateList(R.styleable.XEditText_x_togglePwdDrawableTint);
+            }
+        }
         disableEmoji = a.getBoolean(R.styleable.XEditText_x_disableEmoji, false);
         String pattern = a.getString(R.styleable.XEditText_x_pattern);
+        mInteractionPadding = a.getDimensionPixelSize(R.styleable.XEditText_x_interactionPadding, DEFAULT_PADDING);
         a.recycle();
 
         if (mSeparator == null) {
@@ -125,20 +147,22 @@ public class XEditText extends AppCompatEditText {
         hasNoSeparator = TextUtils.isEmpty(mSeparator);
         if (mSeparator.length() > 0) {
             int inputType = getInputType();
-            if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
+            if (inputType == 2 || inputType == 8194 || inputType == 4098) {
+                // If the inputType is number, the separator can't be inserted, so change to phone type.
                 setInputType(InputType.TYPE_CLASS_PHONE);
             }
         }
 
+        if (mInteractionPadding < 0)
+            mInteractionPadding = 0;
+        mHalfPadding = mInteractionPadding >> 1;
+
         if (!disableClear) {
-            if (mClearResId == -1)
-                mClearResId = R.drawable.x_et_svg_ic_clear_24dp;
-            mClearDrawable = AppCompatResources.getDrawable(context, mClearResId);
-            if (mClearDrawable != null) {
-                mClearDrawable.setBounds(0, 0, mClearDrawable.getIntrinsicWidth(),
-                        mClearDrawable.getIntrinsicHeight());
-                if (mClearResId == R.drawable.x_et_svg_ic_clear_24dp)
-                    DrawableCompat.setTint(mClearDrawable, getCurrentHintTextColor());
+            Drawable d = AppCompatResources.getDrawable(context, mClearResId);
+            if (d != null) {
+                mClearDrawable = DrawableCompat.wrap(d);
+                mClearDrawable.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                DrawableCompat.setTintList(mClearDrawable.mutate(), mClearDrawableTint);
             }
         }
 
@@ -175,6 +199,14 @@ public class XEditText extends AppCompatEditText {
                 Log.e("XEditText", "the Pattern format is incorrect!");
             }
         }
+
+        if (disableEmoji) {
+            InputFilter[] oldFilters = getFilters();
+            InputFilter[] newFilters = new InputFilter[oldFilters.length + 1];
+            newFilters[oldFilters.length] = new EmojiExcludeFilter();
+            System.arraycopy(oldFilters, 0, newFilters, 0, oldFilters.length);
+            setFilters(newFilters);
+        }
     }
 
     private void dealWithInputTypes(boolean fromXml) {
@@ -194,26 +226,22 @@ public class XEditText extends AppCompatEditText {
                 setTransformationMethod(PasswordTransformationMethod.getInstance());
             }
 
-            if (mShowPwdResId == -1)
-                mShowPwdResId = R.drawable.x_et_svg_ic_show_password_24dp;
-            if (mHidePwdResId == -1)
-                mHidePwdResId = R.drawable.x_et_svg_ic_hide_password_24dp;
-            int tId = isPwdShow ? mShowPwdResId : mHidePwdResId;
-            mTogglePwdDrawable = ContextCompat.getDrawable(getContext(), tId);
-            if (mTogglePwdDrawable != null) {
-                if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
-                        mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
-                    DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+            Drawable d = AppCompatResources.getDrawable(getContext(), isPwdShow ? mShowPwdResId : mHidePwdResId);
+            if (d != null) {
+                mTogglePwdDrawable = DrawableCompat.wrap(d);
+                mTogglePwdDrawable.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                if (mTogglePwdDrawableTint != null) {
+                    DrawableCompat.setTintList(mTogglePwdDrawable.mutate(), mTogglePwdDrawableTint);
                 }
-                mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
-                        mTogglePwdDrawable.getIntrinsicHeight());
             }
 
-            if (mClearResId == -1)
-                mClearResId = R.drawable.x_et_svg_ic_clear_24dp;
-            if (!disableClear) {
-                mBitmap = getBitmapFromVectorDrawable(getContext(), mClearResId,
-                        mClearResId == R.drawable.x_et_svg_ic_clear_24dp); // clearDrawable
+            if (!disableClear && mClearDrawable != null) {
+                mBitmap = Bitmap.createBitmap(mClearDrawable.getIntrinsicWidth(),
+                        mClearDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(mBitmap);
+                mClearDrawable.draw(canvas);
+
+                setCompoundDrawablePadding(getCompoundDrawablePadding() + mBitmap.getWidth() + (mInteractionPadding << 1));
             }
         }
 
@@ -221,26 +249,6 @@ public class XEditText extends AppCompatEditText {
             setTextEx(getTextEx());
             logicOfCompoundDrawables();
         }
-    }
-
-    private Bitmap getBitmapFromVectorDrawable(Context context, int drawableId, boolean tint) {
-        Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
-        if (drawable == null)
-            return null;
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
-        }
-        if (tint)
-            DrawableCompat.setTint(drawable, getCurrentHintTextColor());
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
     }
 
     @Override
@@ -261,38 +269,48 @@ public class XEditText extends AppCompatEditText {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (hasFocused && mBitmap != null && isPwdInputType && !isTextEmpty()) {
-            if (mLeft * mTop == 0) {
-                mLeft = getMeasuredWidth() - getPaddingRight() -
-                        mTogglePwdDrawable.getIntrinsicWidth() - mBitmap.getWidth() - mPadding;
-                mTop = (getMeasuredHeight() - mBitmap.getHeight()) >> 1;
+        if (hasFocused && !disableClear && mBitmap != null && isPwdInputType && !isTextEmpty()) {
+            if (isRtl()) {
+                if (mStart * mTop == 0) {
+                    mStart = ViewCompat.getPaddingEnd(this) + mTogglePwdDrawable.getIntrinsicWidth()
+                            + mInteractionPadding;
+                    mTop = (getHeight() - mBitmap.getHeight()) >> 1;
+                }
+            } else {
+                if (mStart * mTop == 0) {
+                    mStart = getWidth() - ViewCompat.getPaddingEnd(this) - mTogglePwdDrawable.getIntrinsicWidth()
+                            - mBitmap.getWidth() - mInteractionPadding;
+                    mTop = (getHeight() - mBitmap.getHeight()) >> 1;
+                }
             }
-            canvas.drawBitmap(mBitmap, mLeft, mTop, null);
+            // When the inputted content is too long, getScrollX() can fix the offset.
+            canvas.drawBitmap(mBitmap, mStart + getScrollX(), mTop, null);
         }
     }
 
-    @Override
-    public boolean performClick() {
-        return super.performClick();
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!isEnabled()) {
             return super.onTouchEvent(event);
         }
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            performClick();
-        }
 
         if (hasFocused && isPwdInputType && event.getAction() == MotionEvent.ACTION_UP) {
-            int w = mTogglePwdDrawable.getIntrinsicWidth();
-            int h = mTogglePwdDrawable.getIntrinsicHeight();
-            int top = (getMeasuredHeight() - h) >> 1;
-            int right = getMeasuredWidth() - getPaddingRight();
-            boolean isAreaX = event.getX() <= right && event.getX() >= right - w;
-            boolean isAreaY = event.getY() >= top && event.getY() <= top + h;
-            if (isAreaX && isAreaY) {
+            int dw = mTogglePwdDrawable.getIntrinsicWidth();
+            int dh = mTogglePwdDrawable.getIntrinsicHeight();
+            int top = (getHeight() - dh) >> 1;
+            int end;
+            boolean inAreaX;
+            boolean inAreaY = event.getY() >= top - mInteractionPadding && event.getY() <= top + dh + mInteractionPadding;
+            float eventX = event.getX();
+            if (isRtl()) {
+                end = ViewCompat.getPaddingEnd(this);
+                inAreaX = eventX >= end - mHalfPadding && eventX <= end + dw + mHalfPadding;
+            } else {
+                end = getWidth() - ViewCompat.getPaddingEnd(this);
+                inAreaX = eventX <= end + mHalfPadding && eventX >= end - dw - mHalfPadding;
+            }
+            if (inAreaX && inAreaY) {
                 isPwdShow = !isPwdShow;
                 if (isPwdShow) {
                     setTransformationMethod(HideReturnsTransformationMethod.getInstance());
@@ -301,27 +319,29 @@ public class XEditText extends AppCompatEditText {
                 }
                 setSelection(getSelectionStart(), getSelectionEnd());
 
-                mTogglePwdDrawable = ContextCompat.getDrawable(getContext(), isPwdShow ?
-                        mShowPwdResId : mHidePwdResId);
-                if (mTogglePwdDrawable != null) {
-                    if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
-                            mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
-                        DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
+                Drawable d = AppCompatResources.getDrawable(getContext(), isPwdShow ? mShowPwdResId : mHidePwdResId);
+                if (d != null) {
+                    mTogglePwdDrawable = DrawableCompat.wrap(d);
+                    mTogglePwdDrawable.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                    if (mTogglePwdDrawableTint != null) {
+                        DrawableCompat.setTintList(mTogglePwdDrawable.mutate(), mTogglePwdDrawableTint);
                     }
-                    mTogglePwdDrawable.setBounds(0, 0, mTogglePwdDrawable.getIntrinsicWidth(),
-                            mTogglePwdDrawable.getIntrinsicHeight());
                     setCompoundDrawablesCompat(mTogglePwdDrawable);
-
-                    invalidate();
                 }
             }
 
             if (!disableClear) {
-                right -= w + mPadding;
-                isAreaX = event.getX() <= right && event.getX() >= right - mBitmap.getWidth();
-                if (isAreaX && isAreaY) {
+                if (isRtl()) {
+                    end += dw + mInteractionPadding;
+                    inAreaX = eventX >= end - mHalfPadding && eventX <= end + mBitmap.getWidth() + mHalfPadding;
+                } else {
+                    end -= dw + mInteractionPadding;
+                    inAreaX = eventX <= end + mHalfPadding && eventX >= end - mBitmap.getWidth() - mHalfPadding;
+                }
+                if (inAreaX && inAreaY) {
                     setError(null);
-                    setText("");
+                    Editable editable = getText();
+                    if (editable != null) editable.clear();
                     if (mOnClearListener != null) {
                         mOnClearListener.onClear();
                     }
@@ -330,16 +350,24 @@ public class XEditText extends AppCompatEditText {
         }
 
         if (hasFocused && !disableClear && !isPwdInputType && event.getAction() == MotionEvent.ACTION_UP) {
-            Rect rect = mClearDrawable.getBounds();
-            int rectW = rect.width();
-            int rectH = rect.height();
-            int top = (getMeasuredHeight() - rectH) >> 1;
-            int right = getMeasuredWidth() - getPaddingRight();
-            boolean isAreaX = event.getX() <= right && event.getX() >= right - rectW;
-            boolean isAreaY = event.getY() >= top && event.getY() <= (top + rectH);
-            if (isAreaX && isAreaY) {
+            int dw = mClearDrawable.getIntrinsicWidth();
+            int dh = mClearDrawable.getIntrinsicHeight();
+            int top = (getHeight() - dh) >> 1;
+            int end;
+            boolean inAreaX;
+            boolean inAreaY = event.getY() >= top - mInteractionPadding && event.getY() <= top + dh + mInteractionPadding;
+            float eventX = event.getX();
+            if (isRtl()) {
+                end = ViewCompat.getPaddingEnd(this);
+                inAreaX = eventX >= end - mInteractionPadding && eventX <= end + dw + mInteractionPadding;
+            } else {
+                end = getWidth() - ViewCompat.getPaddingEnd(this);
+                inAreaX = eventX <= end + mInteractionPadding && eventX >= end - dw - mInteractionPadding;
+            }
+            if (inAreaX && inAreaY) {
                 setError(null);
-                setText("");
+                Editable editable = getText();
+                if (editable != null) editable.clear();
                 if (mOnClearListener != null) {
                     mOnClearListener.onClear();
                 }
@@ -395,6 +423,10 @@ public class XEditText extends AppCompatEditText {
         }
 
         return super.onTextContextMenuItem(id);
+    }
+
+    private boolean isRtl() {
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
     // =========================== MyTextWatcher ================================
@@ -457,10 +489,8 @@ public class XEditText extends AppCompatEditText {
             }
         } else {
             if (isPwdInputType) {
-                if (mShowPwdResId == R.drawable.x_et_svg_ic_show_password_24dp ||
-                        mHidePwdResId == R.drawable.x_et_svg_ic_hide_password_24dp) {
-                    DrawableCompat.setTint(mTogglePwdDrawable, getCurrentHintTextColor());
-                }
+                if (mTogglePwdDrawableTint != null)
+                    DrawableCompat.setTintList(mTogglePwdDrawable.mutate(), mTogglePwdDrawableTint);
                 setCompoundDrawablesCompat(mTogglePwdDrawable);
             } else if (!isTextEmpty() && !disableClear) {
                 setCompoundDrawablesCompat(mClearDrawable);
@@ -468,39 +498,41 @@ public class XEditText extends AppCompatEditText {
         }
     }
 
-    private void setCompoundDrawablesCompat(Drawable drawableRight) {
+    private void setCompoundDrawablesCompat(Drawable drawableEnd) {
         Drawable[] drawables = TextViewCompat.getCompoundDrawablesRelative(this);
-        TextViewCompat.setCompoundDrawablesRelative(this, drawables[0], drawables[1], drawableRight, drawables[3]);
+        TextViewCompat.setCompoundDrawablesRelative(this, drawables[0], drawables[1], drawableEnd, drawables[3]);
     }
 
     private boolean isTextEmpty() {
         return getTextNoneNull().trim().length() == 0;
     }
 
-    /**
-     * Return the separator has been set.
-     */
+
+    // =================================== APIs begin ========================================
     public String getSeparator() {
         return mSeparator;
     }
 
     /**
-     * set customize separator
+     * Set custom separator.
      */
     public void setSeparator(@NonNull String separator) {
-        this.mSeparator = separator;
+        if (mSeparator.equals(separator))
+            return;
 
+        mSeparator = separator;
         hasNoSeparator = TextUtils.isEmpty(mSeparator);
         if (mSeparator.length() > 0) {
             int inputType = getInputType();
-            if (inputType == 2 || inputType == 8194 || inputType == 4098) { // if inputType is number, it can't insert mSeparator.
+            if (inputType == 2 || inputType == 8194 || inputType == 4098) {
+                // If the inputType is number, the separator can't be inserted, so change to phone type.
                 setInputType(InputType.TYPE_CLASS_PHONE);
             }
         }
     }
 
     /**
-     * set customize pattern
+     * Set custom pattern.
      *
      * @param pattern   e.g. pattern:{4,4,4,4}, separator:"-" to xxxx-xxxx-xxxx-xxxx
      * @param separator separator
@@ -511,7 +543,7 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * set customize pattern
+     * Set custom pattern.
      *
      * @param pattern e.g. pattern:{4,4,4,4}, separator:"-" to xxxx-xxxx-xxxx-xxxx
      */
@@ -528,13 +560,20 @@ public class XEditText extends AppCompatEditText {
            so you don't need to set 'maxLength' attr in your xml any more(it won't work).*/
         int maxLength = intervals[intervals.length - 1] + pattern.length - 1;
 
-        InputFilter[] filters = new InputFilter[1];
-        filters[0] = new InputFilter.LengthFilter(maxLength);
-        setFilters(filters);
+        InputFilter[] oldFilters = getFilters();
+        List<InputFilter> list = new ArrayList<>();
+        for (InputFilter filter : oldFilters) {
+            if (!(filter instanceof InputFilter.LengthFilter))
+                list.add(filter);
+        }
+        list.add(new InputFilter.LengthFilter(maxLength));
+
+        InputFilter[] newFilters = new InputFilter[list.size()];
+        setFilters(list.toArray(newFilters));
     }
 
     /**
-     * set CharSequence to separate
+     * Set CharSequence to separate.
      *
      * @deprecated Call {@link #setTextEx(CharSequence)} instead.
      */
@@ -619,7 +658,7 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * Get text string.
+     * Get text string without separator.
      */
     @NonNull
     public String getTextEx() {
@@ -649,15 +688,12 @@ public class XEditText extends AppCompatEditText {
         return editable == null ? "" : editable.toString();
     }
 
-    /**
-     * @return has separator or not
-     */
     public boolean hasNoSeparator() {
         return hasNoSeparator;
     }
 
     /**
-     * Set no separator, the same as EditText
+     * Set no separator, just like a @{@link android.widget.EditText}.
      */
     public void setNoSeparator() {
         hasNoSeparator = true;
@@ -665,24 +701,109 @@ public class XEditText extends AppCompatEditText {
         intervals = null;
     }
 
-    /**
-     * set true to disable Emoji and special symbol
-     *
-     * @param disableEmoji true: disable emoji;
-     *                     false: enable emoji
-     */
-    public void setDisableEmoji(boolean disableEmoji) {
-        this.disableEmoji = disableEmoji;
-        if (disableEmoji) {
-            setFilters(new InputFilter[]{new EmojiExcludeFilter()});
-        } else {
-            setFilters(new InputFilter[0]);
+    public void setClearDrawable(@DrawableRes int resId) {
+        mClearResId = resId;
+        setClearDrawable(AppCompatResources.getDrawable(getContext(), resId));
+    }
+
+    public void setClearDrawable(@Nullable Drawable drawable) {
+        if (!disableClear && drawable != null) {
+            mClearDrawable = DrawableCompat.wrap(drawable);
+            mClearDrawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            if (mClearDrawableTint != null)
+                DrawableCompat.setTintList(mClearDrawable.mutate(), mClearDrawableTint);
         }
     }
 
-    /**
-     * the same as EditText.addOnTextChangeListener(TextWatcher textWatcher)
-     */
+    public void setTogglePwdDrawables(@DrawableRes int showResId, @DrawableRes int hideResId) {
+        mShowPwdResId = showResId;
+        mHidePwdResId = hideResId;
+        setTogglePwdDrawables(AppCompatResources.getDrawable(getContext(), showResId),
+                AppCompatResources.getDrawable(getContext(), showResId));
+    }
+
+    public void setTogglePwdDrawables(@Nullable Drawable showDrawable, @Nullable Drawable hideDrawable) {
+        if (isPwdShow && showDrawable != null) {
+            mTogglePwdDrawable = DrawableCompat.wrap(showDrawable);
+            mTogglePwdDrawable.setBounds(0, 0, showDrawable.getIntrinsicWidth(), showDrawable.getIntrinsicHeight());
+            if (mTogglePwdDrawableTint != null)
+                DrawableCompat.setTintList(mTogglePwdDrawable.mutate(), mTogglePwdDrawableTint);
+        }
+        if (!isPwdShow && hideDrawable != null) {
+            mTogglePwdDrawable = DrawableCompat.wrap(hideDrawable);
+            mTogglePwdDrawable.setBounds(0, 0, hideDrawable.getIntrinsicWidth(), hideDrawable.getIntrinsicHeight());
+            if (mTogglePwdDrawableTint != null)
+                DrawableCompat.setTintList(mTogglePwdDrawable.mutate(), mTogglePwdDrawableTint);
+        }
+    }
+
+    public void setClearDrawableTint(@NonNull ColorStateList colorStateList) {
+        mClearDrawableTint = colorStateList;
+        if (mClearDrawable != null)
+            DrawableCompat.setTintList(mClearDrawable.mutate(), colorStateList);
+    }
+
+    public void setTogglePwdDrawablesTint(@NonNull ColorStateList colorStateList) {
+        mTogglePwdDrawableTint = colorStateList;
+        if (mTogglePwdDrawable != null)
+            DrawableCompat.setTintList(mTogglePwdDrawable.mutate(), colorStateList);
+    }
+
+    public void setInteractionPadding(int paddingInDp) {
+        if (paddingInDp >= 0) {
+            mInteractionPadding = paddingInDp;
+            mHalfPadding = paddingInDp >> 1;
+        }
+    }
+
+    public void setDisableClear(boolean disable) {
+        if (disableClear == disable)
+            return;
+
+        disableClear = disable;
+        if (isPwdInputType && mBitmap != null) {
+            int padding = getCompoundDrawablePadding();
+            if (disable) {
+                padding -= mBitmap.getWidth() + mInteractionPadding;
+            } else {
+                padding += mBitmap.getWidth() + mInteractionPadding;
+            }
+            setCompoundDrawablePadding(padding);
+        }
+    }
+
+    public void setTogglePwdDrawableEnable(boolean enable) {
+        if (togglePwdDrawableEnable == enable)
+            return;
+
+        togglePwdDrawableEnable = enable;
+        dealWithInputTypes(false);
+    }
+
+    public void setDisableEmoji(boolean disableEmoji) {
+        if (this.disableEmoji == disableEmoji)
+            return;
+
+        this.disableEmoji = disableEmoji;
+
+        InputFilter[] oldFilters = getFilters();
+        InputFilter[] newFilters;
+        if (disableEmoji) {
+            newFilters = new InputFilter[oldFilters.length + 1];
+            newFilters[oldFilters.length] = new EmojiExcludeFilter();
+            System.arraycopy(oldFilters, 0, newFilters, 0, oldFilters.length);
+        } else {
+            List<InputFilter> list = new ArrayList<>();
+            for (InputFilter filter : oldFilters) {
+                if (!(filter instanceof EmojiExcludeFilter))
+                    list.add(filter);
+            }
+            newFilters = new InputFilter[list.size()];
+            list.toArray(newFilters);
+        }
+        setFilters(newFilters);
+    }
+
     public void setOnXTextChangeListener(OnXTextChangeListener listener) {
         this.mXTextChangeListener = listener;
     }
@@ -695,6 +816,9 @@ public class XEditText extends AppCompatEditText {
         mOnClearListener = listener;
     }
 
+    /**
+     * OnXTextChangeListener is to XEditText what OnTextChangeListener is to EditText.
+     */
     public interface OnXTextChangeListener {
 
         void beforeTextChanged(CharSequence s, int start, int count, int after);
@@ -704,13 +828,21 @@ public class XEditText extends AppCompatEditText {
         void afterTextChanged(Editable s);
     }
 
+    /**
+     * OnXFocusChangeListener is to XEditText what OnFocusChangeListener is to EditText.
+     */
     public interface OnXFocusChangeListener {
         void onFocusChange(View v, boolean hasFocus);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when the clear drawable is clicked.
+     */
     public interface OnClearListener {
         void onClear();
     }
+
+    // =================================== APIs end ========================================
 
     @Override
     public Parcelable onSaveInstanceState() {
@@ -742,7 +874,7 @@ public class XEditText extends AppCompatEditText {
     }
 
     /**
-     * disable emoji and special symbol input
+     * Disable emoji and other special symbol input.
      */
     private static class EmojiExcludeFilter implements InputFilter {
 
